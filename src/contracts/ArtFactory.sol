@@ -20,11 +20,22 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     address owner;
     uint256 gen;
     uint256 dna;
+    string tokenURI;
     string name;
     bool legacyCreated;
   }
 
-  Critter[] critters;
+  struct _Proposal {
+    uint256 id;
+  }
+
+  mapping(uint256 => Critter) public critters;
+  mapping(uint256 => _Proposal) public proposals;
+  //mapping(uint256 => bool) public proposalCancelled;
+  //mapping(uint256 => bool) public orders;
+
+  event Artwork(uint256 id, address owner, uint256 gen, uint256 dna, string tokenURI, string name);
+  event Proposal();
   
   constructor(address _artistFeeAccount, uint256 _artistFee) ERC721("Critter", "CRITTER") {
     contractFee = 1;
@@ -33,16 +44,30 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     critterCount = 0;
   }
 
-  function createArtwork(uint256 _gen, uint256 _dna, string memory _name, string memory _tokenURI) public {
+  modifier onlyArtist() {
+    require(msg.sender == artistFeeAccount);
+    _;
+  }
+
+  function changeArtistFeeAccount(address _artistFeeAccount) public onlyArtist {
+    artistFeeAccount = _artistFeeAccount;
+  }
+
+  function changeContractFeeAccount(address _contractFeeAccount) public onlyOwner {
+    contractFeeAccount = _contractFeeAccount;
+  }
+
+  function createArtwork(uint256 _gen, uint256 _dna, string memory _tokenURI, string memory _name) public onlyArtist {
     uint256 _id = critterCount;
-    critters.push(Critter(_id, msg.sender, _gen, _dna, _name, false));
+    critters[_id] = Critter(_id, msg.sender, _gen, _dna, _tokenURI, _name, false);
     _safeMint(msg.sender, _id);
     _setTokenURI(_id, _tokenURI);
     critterCount = critterCount.add(1);
+    emit Artwork(_id, msg.sender, _gen, _dna, _tokenURI, _name);
   }
 
-  function changeArtistFeeAccount(address _artistFeeAccount) public {
-    require(msg.sender == artistFeeAccount);
-    artistFeeAccount = _artistFeeAccount;
+  function createProposal() public {
+
+    emit Proposal();
   }
 }
