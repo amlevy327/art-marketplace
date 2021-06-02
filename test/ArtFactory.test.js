@@ -7,26 +7,26 @@ require('chai')
     .use(require('chai-as-promised'))
     .should()
 
-contract('Art', ([owner, artist, ownerNew, artistNew, buyer1, buyer2, buyer3]) => {
+contract('Art', ([owner, artist, ownerNew, artistNew, buyer1]) => {
   let artFactory
-  const artistFeePercentageC = 5
-  const baseArtPriceC = 1
-  const parentMultiplierPercentageC = 20
-  const minParentsC = 2
-  const maxParentsC = 4
-  const minLegaciesC = 1
-  const maxLegaciesC = 4
+  const _artistFeePercentage = 5
+  const _baseArtPrice = 1
+  const _parentMultiplierPercentage = 20
+  const _minParents = 2
+  const _maxParents = 4
+  const _minLegacies = 1
+  const _maxLegacies = 4
   
   beforeEach(async () => {
     artFactory = await ArtFactory.new(
       artist,
-      artistFeePercentageC,
-      baseArtPriceC,
-      parentMultiplierPercentageC,
-      minParentsC,
-      maxParentsC,
-      minLegaciesC,
-      maxLegaciesC,
+      _artistFeePercentage,
+      _baseArtPrice,
+      _parentMultiplierPercentage,
+      _minParents,
+      _maxParents,
+      _minLegacies,
+      _maxLegacies,
       { from: owner })
   })
 
@@ -39,9 +39,9 @@ contract('Art', ([owner, artist, ownerNew, artistNew, buyer1, buyer2, buyer3]) =
       address.should.not.equal(undefined, 'address does not equal undefined')
     })
 
-    it('it tracks the critter count', async () => {
-      const critterCount = await artFactory.critterCount()
-      critterCount.toString().should.equal('0', 'critter count is correct')
+    it('it tracks the artwork count', async () => {
+      const critterCount = await artFactory.artworkCount()
+      critterCount.toString().should.equal('0', 'artwork count is correct')
     })
 
     it('it tracks the order count', async () => {
@@ -61,37 +61,37 @@ contract('Art', ([owner, artist, ownerNew, artistNew, buyer1, buyer2, buyer3]) =
 
     it('it tracks the artist fee percentage', async () => {
       const artistFeePercentage = await artFactory.artistFeePercentage()
-      artistFeePercentage.toString().should.equal(artistFeePercentageC.toString(), 'artist fee percentage is correct')
+      artistFeePercentage.toString().should.equal(_artistFeePercentage.toString(), 'artist fee percentage is correct')
     })
 
     it('it tracks the base art price', async () => {
       const baseArtPrice = await artFactory.baseArtPrice()
-      baseArtPrice.toString().should.equal(baseArtPriceC.toString(), 'base art price is correct')
+      baseArtPrice.toString().should.equal(_baseArtPrice.toString(), 'base art price is correct')
     })
 
     it('it tracks the parent percentage multiplier', async () => {
       const parentMultiplierPercentage = await artFactory.parentMultiplierPercentage()
-      parentMultiplierPercentage.toString().should.equal(parentMultiplierPercentageC.toString(), 'parent percentage multiplier is correct')
+      parentMultiplierPercentage.toString().should.equal(_parentMultiplierPercentage.toString(), 'parent percentage multiplier is correct')
     })
 
     it('it tracks the min parents', async () => {
       const minParents = await artFactory.minParents()
-      minParents.toString().should.equal(minParentsC.toString(), 'min parents is correct')
+      minParents.toString().should.equal(_minParents.toString(), 'min parents is correct')
     })
 
     it('it tracks the max parents', async () => {
       const maxParents = await artFactory.maxParents()
-      maxParents.toString().should.equal(maxParentsC.toString(), 'max parents is correct')
+      maxParents.toString().should.equal(_maxParents.toString(), 'max parents is correct')
     })
 
     it('it tracks the min legacies', async () => {
       const minLegacies = await artFactory.minLegacies()
-      minLegacies.toString().should.equal(minLegaciesC.toString(), 'min legacies is correct')
+      minLegacies.toString().should.equal(_minLegacies.toString(), 'min legacies is correct')
     })
 
     it('it tracks the max legacies', async () => {
       const maxLegacies = await artFactory.maxLegacies()
-      maxLegacies.toString().should.equal(maxLegaciesC.toString(), 'max legacies is correct')
+      maxLegacies.toString().should.equal(_maxLegacies.toString(), 'max legacies is correct')
     })
   })
 
@@ -128,52 +128,52 @@ contract('Art', ([owner, artist, ownerNew, artistNew, buyer1, buyer2, buyer3]) =
   })
 
   describe('change artist fee percentage', () => {
-    const newArtistFeePercentage = '10'
+    const _artistFeePercentage = '10'
     describe('success', () => {
       it('tracks new fee percentage by artist', async () => {
-        const result = await artFactory.changeArtistFeePercentage(newArtistFeePercentage, { from: artist })
+        const result = await artFactory.changeArtistFeePercentage(_artistFeePercentage, { from: artist })
         const artistFeePercentage = await artFactory.artistFeePercentage()
-        artistFeePercentage.toString().should.equal(newArtistFeePercentage.toString(), 'new artist fee percentage is correct')
+        artistFeePercentage.toString().should.equal(_artistFeePercentage.toString(), 'new artist fee percentage is correct')
       })
     })
 
     describe('failure', () => {
       it('rejects non artist sender', async () => {
-        await artFactory.changeArtistFeePercentage(newArtistFeePercentage, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.changeArtistFeePercentage(_artistFeePercentage, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })
 
   describe('change base art price', () => {
-    const newBaseArtPrice = '5'
+    const _baseArtPrice = '5'
     describe('success', () => {
       it('tracks new base art price by artist', async () => {
-        const result = await artFactory.changeBaseArtPrice(newBaseArtPrice, { from: artist })
+        const result = await artFactory.changeBaseArtPrice(_baseArtPrice, { from: artist })
         const baseArtPrice = await artFactory.baseArtPrice()
-        baseArtPrice.toString().should.equal(newBaseArtPrice.toString(), 'new artist fee percentage is correct')
+        baseArtPrice.toString().should.equal(_baseArtPrice.toString(), 'new artist fee percentage is correct')
       })
     })
 
     describe('failure', () => {
       it('rejects non artist sender', async () => {
-        await artFactory.changeBaseArtPrice(newBaseArtPrice, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.changeBaseArtPrice(_baseArtPrice, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })
 
   describe('change parent multiplier percentage', () => {
-    const newParentMultiplierPercentage = '50'
+    const _parentMultiplierPercentage = '50'
     describe('success', () => {
       it('tracks new parent multiplier percentage by artist', async () => {
-        const result = await artFactory.changeParentMultiplierPercentage(newParentMultiplierPercentage, { from: artist })
+        const result = await artFactory.changeParentMultiplierPercentage(_parentMultiplierPercentage, { from: artist })
         const parentMultiplierPercentage = await artFactory.parentMultiplierPercentage()
-        parentMultiplierPercentage.toString().should.equal(newParentMultiplierPercentage.toString(), 'new artist fee percentage is correct')
+        parentMultiplierPercentage.toString().should.equal(_parentMultiplierPercentage.toString(), 'new artist fee percentage is correct')
       })
     })
 
     describe('failure', () => {
       it('rejects non artist sender', async () => {
-        await artFactory.changeParentMultiplierPercentage(newParentMultiplierPercentage, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.changeParentMultiplierPercentage(_parentMultiplierPercentage, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })
@@ -242,6 +242,46 @@ contract('Art', ([owner, artist, ownerNew, artistNew, buyer1, buyer2, buyer3]) =
     describe('failure', () => {
       it('rejects non artist sender', async () => {
         await artFactory.changeMaxParents(newMaxLegacies, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+      })
+    })
+  })
+
+  describe('new art gen 0', () => {
+    let result
+    const _tokenURI = 'abcd'
+    const _name = 'Andrew'
+
+    describe('success', () => {
+      beforeEach(async() => {
+        result = await artFactory.createArtGen0(_tokenURI, _name, { from: artist })
+      })
+
+      it('tracks new art gen 0 by artist', async () => {
+        const artworkCount = await artFactory.artworkCount()
+        artworkCount.toString().should.equal('1', 'artwork count is correct')
+
+        const art = await artFactory.artworks('0')
+        art.id.toString().should.equal('0', 'id is correct')
+        art.owner.toString().should.equal(artist.toString(), 'owner is correct')
+        art.gen.toString().should.equal('0', 'gen is correct')
+        art.tokenURI.toString().should.equal(_tokenURI.toString(), 'tokenURI is correct')
+        art.name.toString().should.equal(_name.toString(), 'name is correct')
+        art.legacyCreated.should.equal(false, 'legacyCreated is correct')
+        //TODO: art.parents['0'].should.equal([], 'parents is correct')
+        //TODO: art.siblings.should.equal([], 'siblings is correct')
+
+        const price = await artFactory.prices('0')
+        price.toString().should.equal(_baseArtPrice.toString(), 'prices mapping is correct')
+      })
+      
+      it('emits ArtGen0 event', async () => {
+        expectEvent(result, 'ArtGen0', { id: '0', owner: artist, gen: '0', tokenURI: _tokenURI, name: _name, legacyCreated: false, parents: [], siblings: [] })
+      })
+    })
+
+    describe('failure', () => {
+      it('rejects non artist sender', async () => {
+        await artFactory.createArtGen0(_tokenURI, _name, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })
