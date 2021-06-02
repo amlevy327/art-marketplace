@@ -23,22 +23,23 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   uint256 public maxParents;
   uint256 public minLegacies;
   uint256 public maxLegacies;
-  uint256 public critterCount;
+  uint256 public artworkCount;
   uint256 public orderCount;
 
   mapping(uint256 => Art) public artworks;
-  //mapping(uint256 => Order) public orders;
-
-  //mapping (address => uint256) public balances;
+  mapping(uint256 => uint256) public prices;
+  // mapping (address => uint256) public balances;
+  // mapping(uint256 => Order) public orders;
 
   struct Art {
     uint256 id;
     address owner;
     uint256 gen;
-    uint256 dna;
     string tokenURI;
     string name;
     bool legacyCreated;
+    uint256[] parents;
+    uint256[] siblings;
   }
 
   // struct Order {
@@ -48,7 +49,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   //   uint256 numLegacies;
   // }
 
-  event ArtGen0(uint256 id, address owner, uint256 gen, uint256 dna, string tokenURI, string name);
+  event ArtGen0(uint256 id, address owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
   //event OrderCreated(uint256 id, address buyer, uint256[] artIDS, uint256 numLegacies);
 
   constructor(
@@ -62,7 +63,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     uint256 _maxLegacies
     ) ERC721("Art", "ART") {
     
-    critterCount = 0;
+    artworkCount = 0;
     orderCount = 0;
     contractFeePercentage = 1;
 
@@ -117,16 +118,16 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     maxLegacies = _maxLegacies;
   }
 
-  // function createNewCritter(uint256 _gen, uint256 _dna, string memory _tokenURI, string memory _name) public onlyArtist {
-  //   uint256 _id = critterCount;
-  //   critters[_id] = Critter(_id, msg.sender, _gen, _dna, _tokenURI, _name, false);
-    
-  //   _safeMint(msg.sender, _id);
-  //   _setTokenURI(_id, _tokenURI);
-    
-  //   critterCount = critterCount.add(1);
-  //   //emit Critter(_id, msg.sender, _gen, _dna, _tokenURI, _name);
-  // }
+  function createArtGen0(string memory _tokenURI, string memory _name) public onlyArtist {
+    uint256 _id = artworkCount;
+    uint256[] memory arr;
+    artworks[_id] = Art(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
+    _safeMint(msg.sender, _id);
+    _setTokenURI(_id, _tokenURI);
+    artworkCount = artworkCount.add(1);
+    prices[_id] = baseArtPrice;
+    emit ArtGen0(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
+  }
   
 /*
   function createOrder(uint256[] memory _artIDS, uint256 _numLegacies) public payable {
