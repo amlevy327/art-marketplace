@@ -55,8 +55,8 @@ contract ArtFactory is Ownable, ERC721URIStorage {
 
   event ArtGen0(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
   event Order(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
-  event Accepted(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
-  event Cancelled(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
+  event Accept(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
+  event Cancel(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
 
   constructor(
     address _artistFeeAccount,
@@ -142,6 +142,9 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     emit ArtGen0(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
   }
 
+  // function purchaseArtForSale(uint256 _tokenId) public {
+  // }
+
   function createOrder(uint256[] memory _parentIDS, uint256 _numLegacies) public payable {
     uint256 _numParents = _parentIDS.length;
     uint256 _id = orderCount;
@@ -174,7 +177,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     _Order storage _order = orders[_id];
     require(_order.id == _id);
     acceptedOrders[_id] = true;
-    emit Accepted(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
+    emit Accept(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
   }
 
   function cancelOrder(uint256 _id) public {
@@ -184,6 +187,6 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     cancelledOrders[_id] = true;
     balances[msg.sender] = balances[msg.sender].add(_order.price); // need to test
     balances[artistFeeAccount] = balances[artistFeeAccount].sub(_order.price); // need to test
-    emit Cancelled(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
+    emit Cancel(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
   }
 }
