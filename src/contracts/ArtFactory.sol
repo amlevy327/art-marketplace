@@ -5,6 +5,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
+// todo
+// art needs timestamps
+// orders need timestamps
+
 contract ArtFactory is Ownable, ERC721URIStorage {
 
   using SafeMath for uint256;
@@ -25,7 +29,8 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   mapping(uint256 => Art) public artworks;
   mapping(uint256 => _Order) public orders;
   mapping(uint256 => uint256) public prices;
-  mapping (address => uint256) public balances;
+  mapping(address => uint256) public balances;
+  mapping(uint256 => bool) public acceptedOrders;
 
   struct Art {
     uint256 id;
@@ -49,6 +54,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
 
   event ArtGen0(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
   event Order(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
+  event Accepted(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
 
   constructor(
     address _artistFeeAccount,
@@ -160,5 +166,11 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     orderCount = orderCount.add(1);
     
     emit Order(_id, msg.sender, _price, _parentIDS, _numLegacies, _gen);
+  }
+
+  function acceptOrder(uint256 _id) public onlyArtist {
+    _Order storage _order = orders[_id];
+    acceptedOrders[_id] = true;
+    emit Accepted(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
   }
 }
