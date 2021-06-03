@@ -8,7 +8,10 @@ const {
   MAX_LEGACIES,
   PARENT_MULTIPLIER_PERCENTAGE,
   TOKEN_URI,
-  NAME
+  NAME,
+  TOTAL_PRICE,
+  PARENT_IDS,
+  NUM_LEGACIES
 } = require('./helpers');
 const { expectEvent } = require('@openzeppelin/test-helpers');
 
@@ -68,6 +71,63 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
     describe('failure', () => {
       it('rejects non artist sender', async () => {
         await artFactory.createArtGen0(TOKEN_URI, NAME, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+      })
+    })
+  })
+
+  describe('from order', () => {
+    let result
+    const orderID = '0'
+
+    beforeEach(async() => {
+      await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+      await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
+    })
+  
+    describe('success', () => {
+      beforeEach(async() => {
+        result = await artFactory.createArtFromOrder(orderID, TOKEN_URI, NAME, '1', [0], [], buyer1, { from: artist })
+      })
+  
+      it('tracks new art from order by artist', async () => {
+        const orderCount = await artFactory.orderCount()
+        orderCount.toString().should.equal('1', 'order count is correct')
+
+        const artworkCount = await artFactory.artworkCount()
+        artworkCount.toString().should.equal('2', 'artwork count is correct')
+  
+        const art = await artFactory.artworks('1')
+        art.id.toString().should.equal('1', 'id is correct')
+        art.owner.toString().should.equal(buyer1.toString(), 'owner is correct')
+        art.gen.toString().should.equal('1', 'gen is correct')
+        art.tokenURI.toString().should.equal(TOKEN_URI.toString(), 'tokenURI is correct')
+        art.name.toString().should.equal(NAME.toString(), 'name is correct')
+        art.legacyCreated.should.equal(false, 'legacyCreated is correct')
+        //TODO: art.parents.should.equal([0], 'parents is correct')
+        //TODO: art.siblings.should.equal([], 'siblings is correct')
+  
+        const price = await artFactory.prices('1')
+        price.toString().should.equal('0', 'prices mapping is correct')
+
+        const filledOrder = await artFactory.filledOrders(orderID)
+        filledOrder.should.equal(true, 'filled orders mapping is correct')
+
+        const parent = await artFactory.artworks('0')
+        parent.legacyCreated.should.equal(true, 'parent legacy created is true')
+      })
+      
+      it('emits ArtFromOrder event', async () => {
+        // TODO: expectEvent(result, 'ArtFromOrder', { id: '1', owner: artist, gen: '1', tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
+      })
+    })
+  
+    describe('failure', () => {
+      it('rejects incorrect orderID', async () => {
+        await artFactory.createArtFromOrder('999', TOKEN_URI, NAME, '1', [0], [], buyer1, { from: artist }).should.be.rejectedWith(EVM_REVERT)
+      })
+
+      it('rejects non artist sender', async () => {
+        await artFactory.createArtFromOrder(orderID, TOKEN_URI, NAME, '1', [0], [], buyer1, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })
