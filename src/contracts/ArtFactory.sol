@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 // todo
+// cancelled orders balance transfers
 // art needs timestamps
 // orders need timestamps
 
@@ -32,6 +33,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   mapping(address => uint256) public balances;
   mapping(uint256 => bool) public acceptedOrders;
   mapping(uint256 => bool) public cancelledOrders;
+  mapping(uint256 => bool) public filledOrders;
 
   struct Art {
     uint256 id;
@@ -54,6 +56,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   }
 
   event ArtGen0(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
+  event ArtFromOrder(uint256 id, uint256 orderID, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
   event Order(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
   event Accept(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
   event Cancel(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
@@ -135,15 +138,36 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     uint256 _id = artworkCount;
     uint256[] memory arr;
     artworks[_id] = Art(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
+    
     _safeMint(msg.sender, _id);
     _setTokenURI(_id, _tokenURI);
+    
     artworkCount = artworkCount.add(1);
     prices[_id] = baseArtPrice;
+    
     emit ArtGen0(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
   }
 
-  // function purchaseArtForSale(uint256 _tokenId) public {
-  // }
+  function createArtFromOrder(uint256 _orderID, string memory _tokenURI, string memory _name, uint256 _gen, uint256[] memory _parents, uint256[] memory _siblings, address _buyer) public onlyArtist {
+    _Order storage _order = orders[_orderID];
+    require(_order.id == _orderID);
+    
+    uint256 _id = artworkCount;
+    artworks[_id] = Art(_id, _buyer, _gen, _tokenURI, _name, false, _parents, _siblings);
+    
+    _safeMint(_buyer, _id);
+    _setTokenURI(_id, _tokenURI);
+
+    filledOrders[_orderID] = true;
+    artworkCount = artworkCount.add(1);
+    for(uint i=0;i<_parents.length;i++) {
+      if(artworks[_parents[i]].legacyCreated == false) {
+        artworks[_parents[i]].legacyCreated = true;
+      }
+    }
+    
+    emit ArtFromOrder(_id, _orderID, msg.sender, _gen, _tokenURI, _name, false, _parents, _siblings);
+  }
 
   function createOrder(uint256[] memory _parentIDS, uint256 _numLegacies) public payable {
     uint256 _numParents = _parentIDS.length;
@@ -177,6 +201,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     _Order storage _order = orders[_id];
     require(_order.id == _id);
     acceptedOrders[_id] = true;
+    
     emit Accept(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
   }
 
@@ -184,9 +209,11 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     _Order storage _order = orders[_id];
     require(_order.id == _id);
     require(msg.sender == _order.buyer);
+    
     cancelledOrders[_id] = true;
     balances[msg.sender] = balances[msg.sender].add(_order.price); // need to test
     balances[artistFeeAccount] = balances[artistFeeAccount].sub(_order.price); // need to test
+    
     emit Cancel(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
   }
 }

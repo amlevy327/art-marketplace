@@ -48,7 +48,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
 
     describe('success', () => {
       beforeEach(async() => {
-        result = await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+        await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
         result = await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
       })
 
@@ -56,14 +56,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
         const orderCount = await artFactory.orderCount()
         orderCount.toString().should.equal('1', 'order count is correct')
 
-        //const _orderPrice = BASE_ART_PRICE + (BASE_ART_PRICE * NUM_LEGACIES * PARENT_MULTIPLIER_PERCENTAGE * PARENT_IDS.length / 100)
-        //console.log('calculated order price: ', _orderPrice)
-
-        //const _contractFee = _orderPrice * 1 / 100
-        //console.log('calculated contract fee: ', _contractFee)
-
         const order = await artFactory.orders('0')
-        //console.log(order)
         order.id.toString().should.equal('0', 'id is correct')
         order.price.toString().should.equal(ORDER_PRICE.toString(), 'order price is correct')
         order.buyer.toString().should.equal(artist.toString(), 'buyer is correct')
@@ -116,12 +109,11 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
   })
 
   describe('accept order', () => {
-    const cost = '1111000000'
 
     describe('success', () => {
       beforeEach(async() => {
         await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
-        await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: cost })
+        await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
       })
 
       it('tracks accepted order by artist', async () => {
@@ -152,7 +144,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
 
     beforeEach(async() => {
       await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
-      await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: cost })
+      await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
     })
 
     describe('success', () => {
