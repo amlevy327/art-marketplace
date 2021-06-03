@@ -446,10 +446,14 @@ contract('Art', ([owner, artist, ownerNew, artistNew, buyer1]) => {
   describe('accept order', () => {
     const _tokenURI = 'abcd'
     const _name = 'Andrew'
+    const cost = '1111000000'
+    const _parentIDS = [0]
+    const _numLegacies = 2
 
     describe('success', () => {
       beforeEach(async() => {
         await artFactory.createArtGen0(_tokenURI, _name, { from: artist })
+        await artFactory.createOrder(_parentIDS, _numLegacies, { from: artist, value: cost })
       })
 
       it('tracks accepted order by artist', async () => {
@@ -460,13 +464,59 @@ contract('Art', ([owner, artist, ownerNew, artistNew, buyer1]) => {
 
       it('emits Accepted event', async () => {
         // TODO: issue reading array
-        // expectEvent(result, 'Order', { id: '0', buyer: buyer1, artPrice: 0, parentIDS: _parentIDS, numLegacies: _numLegacies, gen: '1' })
+        // expectEvent(result, 'Accepted', { id: '0', buyer: buyer1, artPrice: 0, parentIDS: _parentIDS, numLegacies: _numLegacies, gen: '1' })
       })
     })
 
     describe('failure', () => {
+      it('rejects invalid id', async () => {
+        await artFactory.acceptOrder('100', { from: artist }).should.be.rejectedWith(EVM_REVERT)
+      })
+
       it('rejects non buyer sender', async () => {
         await artFactory.acceptOrder('0', { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+      })
+    })
+  })
+
+  describe('cancel order', () => {
+    const _tokenURI = 'abcd'
+    const _name = 'Andrew'
+    const cost = '1111000000'
+    const _parentIDS = [0]
+    const _numLegacies = 2
+
+    beforeEach(async() => {
+      await artFactory.createArtGen0(_tokenURI, _name, { from: artist })
+      await artFactory.createOrder(_parentIDS, _numLegacies, { from: artist, value: cost })
+    })
+
+    describe('success', () => {
+      
+      it('tracks cancelled order by buyer', async () => {
+        await artFactory.cancelOrder('0', { from: artist })
+        const cancelledOrder = await artFactory.cancelledOrders('0')
+        cancelledOrder.should.equal(true, 'cancelled orders mapping correct')
+
+        // TODO: need another account to test
+        // const buyerAccountBalance = await artFactory.balances(artist)
+        // buyerAccountBalance.toString().should.equal('1100000000', 'buyer account balance is correct')
+        // same for artist account balance
+      })
+
+      it('emits Cancel event', async () => {
+        // TODO: issue reading array
+        // expectEvent(result, 'Cancel', { id: '0', buyer: buyer1, artPrice: 0, parentIDS: _parentIDS, numLegacies: _numLegacies, gen: '1' })
+      })
+    })
+
+    describe('failure', () => {
+      it('rejects invalid id', async () => {
+        await artFactory.cancelOrder('100', { from: artist }).should.be.rejectedWith(EVM_REVERT)
+      })
+
+      it('rejects non buyer sender', async () => {
+        await artFactory.cancelOrder('0', { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })
