@@ -442,4 +442,32 @@ contract('Art', ([owner, artist, ownerNew, artistNew, buyer1]) => {
       })
     })
   })
+
+  describe('accept order', () => {
+    const _tokenURI = 'abcd'
+    const _name = 'Andrew'
+
+    describe('success', () => {
+      beforeEach(async() => {
+        await artFactory.createArtGen0(_tokenURI, _name, { from: artist })
+      })
+
+      it('tracks accepted order by artist', async () => {
+        await artFactory.acceptOrder('0', { from: artist })
+        const acceptedOrder = await artFactory.acceptedOrders('0')
+        acceptedOrder.should.equal(true, 'accepted orders mapping correct')
+      })
+
+      it('emits Accepted event', async () => {
+        // TODO: issue reading array
+        // expectEvent(result, 'Order', { id: '0', buyer: buyer1, artPrice: 0, parentIDS: _parentIDS, numLegacies: _numLegacies, gen: '1' })
+      })
+    })
+
+    describe('failure', () => {
+      it('rejects non buyer sender', async () => {
+        await artFactory.acceptOrder('0', { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+      })
+    })
+  })
 })
