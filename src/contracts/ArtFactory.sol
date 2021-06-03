@@ -5,10 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-// TODO:
-// max parents
-// max legacies
-
 contract ArtFactory is Ownable, ERC721URIStorage {
 
   using SafeMath for uint256;
@@ -17,7 +13,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   address public contractFeeAccount;
   uint256 public artistFeePercentage; // percentage out of 100
   address public artistFeeAccount;
-  uint256 public baseArtPrice;
+  uint256 public baseArtPrice; // in wei
   uint256 public parentMultiplierPercentage; // percentage out of 100
   uint256 public minParents;
   uint256 public maxParents;
@@ -27,9 +23,9 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   uint256 public orderCount;
 
   mapping(uint256 => Art) public artworks;
+  mapping(uint256 => _Order) public orders;
   mapping(uint256 => uint256) public prices;
-  // mapping (address => uint256) public balances;
-  // mapping(uint256 => Order) public orders;
+  mapping (address => uint256) public balances;
 
   struct Art {
     uint256 id;
@@ -42,15 +38,17 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     uint256[] siblings;
   }
 
-  // struct Order {
-  //   uint256 id;
-  //   address buyer;
-  //   uint256[] artIDS;
-  //   uint256 numLegacies;
-  // }
+  struct _Order {
+    uint256 id;
+    address buyer;
+    uint256 price;
+    uint256[] parentIDS;
+    uint256 numLegacies;
+    uint256 gen;
+  }
 
-  event ArtGen0(uint256 id, address owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
-  //event OrderCreated(uint256 id, address buyer, uint256[] artIDS, uint256 numLegacies);
+  event ArtGen0(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
+  event Order(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
 
   constructor(
     address _artistFeeAccount,
@@ -66,6 +64,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     artworkCount = 0;
     orderCount = 0;
     contractFeePercentage = 1;
+    contractFeeAccount = msg.sender;
 
     artistFeeAccount = _artistFeeAccount;
     artistFeePercentage = _artistFeePercentage;
@@ -91,6 +90,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   }
 
   function changeArtistFeePercentage(uint256 _artistFeePercentage) public onlyArtist {
+    require(_artistFeePercentage > 0 && _artistFeePercentage < 100);
     artistFeePercentage = _artistFeePercentage;
   }
 
@@ -99,22 +99,27 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   }
 
   function changeParentMultiplierPercentage(uint256 _parentMultiplierPercentage) public onlyArtist {
+    require(_parentMultiplierPercentage > 0 && _parentMultiplierPercentage < 100);
     parentMultiplierPercentage = _parentMultiplierPercentage;
   }
 
   function changeMinParents(uint256 _minParents) public onlyArtist {
+    require(_minParents > 0 && _minParents <= maxParents);
     minParents = _minParents;
   }
 
   function changeMaxParents(uint256 _maxParents) public onlyArtist {
+    require(_maxParents >= minParents);
     maxParents = _maxParents;
   }
 
   function changeMinLegacies(uint256 _minLegacies) public onlyArtist {
+    require(_minLegacies > 0 && _minLegacies <= maxLegacies);
     minLegacies = _minLegacies;
   }
 
   function changeMaxLegacies(uint256 _maxLegacies) public onlyArtist {
+    require(_maxLegacies >= minLegacies);
     maxLegacies = _maxLegacies;
   }
 
@@ -128,30 +133,32 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     prices[_id] = baseArtPrice;
     emit ArtGen0(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
   }
-  
-/*
-  function createOrder(uint256[] memory _artIDS, uint256 _numLegacies) public payable {
-    uint256 _numParents = _artIDS.length;
-    
-    require(_numParents >= 2); // min 2 parents
-    require(_numLegacies >= 1); // min 1 legacy
-    require(parentPriceMultipliers[_numParents] != 0); // multiplier exists
-    require(legacyPriceMulipliers[_numLegacies] != 0); // multiplier exists
 
+  function createOrder(uint256[] memory _parentIDS, uint256 _numLegacies) public payable {
+    uint256 _numParents = _parentIDS.length;
+    uint256 _id = orderCount;
+    uint256 _gen = 1;
+    
+    require(_numParents >= minParents && _numParents <= maxParents);
+    require(_numLegacies >= minLegacies && _numLegacies <= maxLegacies);
+    
     for(uint256 i=0;i<_numParents;i++) {
-      require(critters[i].owner == msg.sender); // msg.sender must own art
+      require(artworks[_parentIDS[i]].owner == msg.sender);
+      if (artworks[_parentIDS[i]].gen > _gen) {
+        _gen = artworks[_parentIDS[i]].gen;
+      }
     }
 
-    uint256 _artPrice = artPrice * parentPriceMultipliers[_numParents] * legacyPriceMulipliers[_numLegacies];
-    uint256 _contractFee = _artPrice * (contractFee / 100);
-    _artPrice = _artPrice.add(_contractFee);
-    require(_artPrice > 0); // price not zero - calculation error
-    require(msg.value == _artPrice); // correct payment
-
-    uint256 _id = orderCount;
-    orders[_id] = Order(_id, msg.sender, _artIDS, _numLegacies);
+    uint256 _price = baseArtPrice + (baseArtPrice.mul(_numLegacies).mul(parentMultiplierPercentage).mul(_numParents).div(100));  // TODO: CHECK THIS
+    require(_price > 0);
+    uint256 _contractFee = _price.mul(contractFeePercentage).div(100);
+    require(msg.value == _price.add(_contractFee));
+    orders[_id] = _Order(_id, msg.sender, _price, _parentIDS, _numLegacies, _gen);
+    
+    balances[artistFeeAccount] = balances[artistFeeAccount].add(_price);
+    balances[contractFeeAccount] = balances[contractFeeAccount].add(_contractFee);
     orderCount = orderCount.add(1);
-    emit OrderCreated(_id, msg.sender, _artIDS, _numLegacies);
+    
+    emit Order(_id, msg.sender, _price, _parentIDS, _numLegacies, _gen);
   }
-  */
 }
