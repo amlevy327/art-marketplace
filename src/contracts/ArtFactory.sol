@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
+import './Tokens.sol';
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -9,6 +10,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 // cancelled orders balance transfers
 // art needs timestamps
 // orders need timestamps
+// withdraw
 
 contract ArtFactory is Ownable, ERC721URIStorage {
 
@@ -60,6 +62,9 @@ contract ArtFactory is Ownable, ERC721URIStorage {
   event Order(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
   event Accept(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
   event Cancel(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
+  event ArtForSale(uint256 id, uint256 price, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
+  event SaleCancel(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
+  event Purchase(uint256 id, uint256 price, address indexed buyer, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
 
   constructor(
     address _artistFeeAccount,
@@ -169,6 +174,60 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     emit ArtFromOrder(_id, _orderID, msg.sender, _gen, _tokenURI, _name, false, _parents, _siblings);
   }
 
+  function putUpForSale(uint256 _id, uint256 _price) public {
+    Art storage _art = artworks[_id];
+    require(_art.id == _id);
+    require(msg.sender == _art.owner);
+
+    prices[_id] = _price;
+    
+    emit ArtForSale(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
+  }
+
+  function cancelSale(uint256 _id) public {
+    Art storage _art = artworks[_id];
+    require(_art.id == _id);
+    require(msg.sender == _art.owner);
+
+    prices[_id] = 0;
+    
+    emit SaleCancel(_id, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
+  }
+
+  function purchase(uint256 _id) public payable {
+    Art storage _art = artworks[_id];
+    require(_art.id == _id);
+    require(msg.sender != _art.owner);
+    uint256 _price = prices[_id];
+    require(_price > 0);
+
+    uint256 artistCut = _price.mul(artistFeePercentage).div(100);
+    uint256 contractCut = _price.mul(contractFeePercentage).div(100);
+    uint256 totalPrice = _price.add(artistCut).add(contractCut);
+    require(msg.value == totalPrice);
+
+    balances[_art.owner] = balances[_art.owner].add(_price);
+    balances[artistFeeAccount] = balances[artistFeeAccount].add(artistCut);
+    balances[contractFeeAccount] = balances[contractFeeAccount].add(contractCut);
+
+    // transfer NFT (_safeTransfer) - is approval required?
+    // setApprovalForAll(address(this), true);
+    // safeTransferFrom(_art.owner, msg.sender, _id);
+    //_transferAfterApproved(_id, msg.sender);
+    
+    
+    _art.owner = msg.sender;
+
+    prices[_id] = 0;
+
+    emit Purchase(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
+  }
+
+  // function _transferAfterApproved(uint256 _id, address _buyer) private {
+  //   Art storage _art = artworks[_id];
+  //   safeTransferFrom(_art.owner, _buyer, _id);
+  // }
+
   function createOrder(uint256[] memory _parentIDS, uint256 _numLegacies) public payable {
     uint256 _numParents = _parentIDS.length;
     uint256 _id = orderCount;
@@ -211,8 +270,8 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     require(msg.sender == _order.buyer);
     
     cancelledOrders[_id] = true;
-    balances[msg.sender] = balances[msg.sender].add(_order.price); // need to test
-    balances[artistFeeAccount] = balances[artistFeeAccount].sub(_order.price); // need to test
+    balances[msg.sender] = balances[msg.sender].add(_order.price); // TODO: need to test
+    balances[artistFeeAccount] = balances[artistFeeAccount].sub(_order.price); // TODO: need to test
     
     emit Cancel(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
   }
