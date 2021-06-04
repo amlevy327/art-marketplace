@@ -11,10 +11,13 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 // art needs timestamps
 // orders need timestamps
 // withdraw
+// tests - token ERC721 stuff
 
-contract ArtFactory is Ownable, ERC721URIStorage {
+contract ArtFactory is Ownable {
 
   using SafeMath for uint256;
+
+  Tokens public tokens;
   
   uint256 public contractFeePercentage; // percentage out of 100
   address public contractFeeAccount;
@@ -75,7 +78,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     uint256 _maxParents,
     uint256 _minLegacies,
     uint256 _maxLegacies
-    ) ERC721("Art", "ART") {
+    ){
     
     artworkCount = 0;
     orderCount = 0;
@@ -139,30 +142,26 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     maxLegacies = _maxLegacies;
   }
 
-  function createArtGen0(string memory _tokenURI, string memory _name) public onlyArtist {
+  function createArtGen0(address _tokensAddress, string memory _tokenURI, string memory _name) public onlyArtist {
     uint256 _id = artworkCount;
     uint256[] memory arr;
+
     artworks[_id] = Art(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
-    
-    _safeMint(msg.sender, _id);
-    _setTokenURI(_id, _tokenURI);
-    
     artworkCount = artworkCount.add(1);
     prices[_id] = baseArtPrice;
+
+    require(Tokens(_tokensAddress).createToken(msg.sender, _id, _tokenURI));
     
     emit ArtGen0(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
   }
 
-  function createArtFromOrder(uint256 _orderID, string memory _tokenURI, string memory _name, uint256 _gen, uint256[] memory _parents, uint256[] memory _siblings, address _buyer) public onlyArtist {
+  function createArtFromOrder(address _tokensAddress, uint256 _orderID, string memory _tokenURI, string memory _name, uint256 _gen, uint256[] memory _parents, uint256[] memory _siblings, address _buyer) public onlyArtist {
     _Order storage _order = orders[_orderID];
     require(_order.id == _orderID);
     
     uint256 _id = artworkCount;
     artworks[_id] = Art(_id, _buyer, _gen, _tokenURI, _name, false, _parents, _siblings);
     
-    _safeMint(_buyer, _id);
-    _setTokenURI(_id, _tokenURI);
-
     filledOrders[_orderID] = true;
     artworkCount = artworkCount.add(1);
     for(uint i=0;i<_parents.length;i++) {
@@ -170,17 +169,21 @@ contract ArtFactory is Ownable, ERC721URIStorage {
         artworks[_parents[i]].legacyCreated = true;
       }
     }
+
+    require(Tokens(_tokensAddress).createToken(_buyer, _id, _tokenURI));
     
     emit ArtFromOrder(_id, _orderID, msg.sender, _gen, _tokenURI, _name, false, _parents, _siblings);
   }
 
-  function putUpForSale(uint256 _id, uint256 _price) public {
+  function putUpForSale(address _tokenAddress, uint256 _id, uint256 _price) public {
     Art storage _art = artworks[_id];
     require(_art.id == _id);
     require(msg.sender == _art.owner);
 
     prices[_id] = _price;
-    
+
+    require(Tokens(_tokenAddress).isApprovedForAll(msg.sender, address(this)));
+
     emit ArtForSale(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
   }
 
@@ -194,7 +197,7 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     emit SaleCancel(_id, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
   }
 
-  function purchase(uint256 _id) public payable {
+  function purchase(address _tokenAddress, uint256 _id) public payable {
     Art storage _art = artworks[_id];
     require(_art.id == _id);
     require(msg.sender != _art.owner);
@@ -209,17 +212,12 @@ contract ArtFactory is Ownable, ERC721URIStorage {
     balances[_art.owner] = balances[_art.owner].add(_price);
     balances[artistFeeAccount] = balances[artistFeeAccount].add(artistCut);
     balances[contractFeeAccount] = balances[contractFeeAccount].add(contractCut);
-
-    // transfer NFT (_safeTransfer) - is approval required?
-    // setApprovalForAll(address(this), true);
-    // safeTransferFrom(_art.owner, msg.sender, _id);
-    //_transferAfterApproved(_id, msg.sender);
-    
-    
-    _art.owner = msg.sender;
-
     prices[_id] = 0;
 
+    require(Tokens(_tokenAddress).transferToken(_art.owner, msg.sender, _id));
+
+    _art.owner = msg.sender;
+    
     emit Purchase(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
   }
 

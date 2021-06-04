@@ -17,10 +17,13 @@ const {
   NUM_LEGACIES_HIGH,
   ORDER_PRICE,
   CONTRACT_FEE,
-  TOTAL_PRICE
+  TOTAL_PRICE,
+  TOKENS_NAME, 
+  TOKENS_SYMBOL
 } = require('./helpers');
 const { expectEvent } = require('@openzeppelin/test-helpers');
 
+const Tokens = artifacts.require('./src.contracts/Tokens.sol')
 const ArtFactory = artifacts.require('./src/contracts/ArtFactory.sol');
 
 require('chai')
@@ -29,8 +32,11 @@ require('chai')
 
 contract('Art - orders', ([owner, artist, buyer1]) => {
   let artFactory
+  let tokens
 
   beforeEach(async () => {
+    tokens = await Tokens.new(TOKENS_NAME, TOKENS_SYMBOL)
+    
     artFactory = await ArtFactory.new(
       artist,
       ARTIST_FEE_PERCENTAGE,
@@ -41,6 +47,8 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
       MIN_LEGACIES,
       MAX_LEGACIES,
       { from: owner })
+
+    await tokens.setMarketplaceAddress(artFactory.address, { from: owner })
   })
 
   describe('new order', () => {
@@ -48,7 +56,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
 
     describe('success', () => {
       beforeEach(async() => {
-        await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+        await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
         result = await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
       })
 
@@ -79,7 +87,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
 
     describe('failure', () => {
       beforeEach(async() => {
-        result = await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+        result = await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       })
 
       it('rejects num parents below min parents', async () => {
@@ -112,7 +120,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
 
     describe('success', () => {
       beforeEach(async() => {
-        await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+        await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
         await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
       })
 
@@ -143,7 +151,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
     const cost = '1111000000'
 
     beforeEach(async() => {
-      await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
     })
 

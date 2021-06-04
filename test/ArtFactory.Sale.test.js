@@ -18,10 +18,13 @@ const {
   ARTIST_CUT,
   CONTRACT_CUT,
   ORDER_PRICE,
-  CONTRACT_FEE
+  CONTRACT_FEE,
+  TOKENS_NAME,
+  TOKENS_SYMBOL
 } = require('./helpers');
 const { expectEvent } = require('@openzeppelin/test-helpers');
 
+const Tokens = artifacts.require('./src.contracts/Tokens.sol')
 const ArtFactory = artifacts.require('./src/contracts/ArtFactory.sol');
 
 require('chai')
@@ -29,9 +32,12 @@ require('chai')
     .should()
 
 contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
+  let tokens
   let artFactory
 
   beforeEach(async () => {
+    tokens = await Tokens.new(TOKENS_NAME, TOKENS_SYMBOL)
+
     artFactory = await ArtFactory.new(
       artist,
       ARTIST_FEE_PERCENTAGE,
@@ -42,6 +48,8 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
       MIN_LEGACIES,
       MAX_LEGACIES,
       { from: owner })
+    
+    await tokens.setMarketplaceAddress(artFactory.address, { from: owner })
   })
 
   describe('put up for sale', () => {
@@ -50,14 +58,20 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
     let orderID = '0'
 
     beforeEach(async() => {
-      await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
-      await artFactory.createArtFromOrder(orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
+      await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
     })
   
     describe('success', () => {
       beforeEach(async() => {
-        result = await artFactory.putUpForSale(artID, SALE_PRICE, { from: buyer1 })
+        await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
+        result = await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
+      })
+
+      it('approves marketplace successfully', async () => {
+        const result = await tokens.isApprovedForAll(buyer1, artFactory.address)
+        result.should.equal(true, 'marketplace approval is correct')
       })
   
       it('tracks sale by owner', async () => {
@@ -71,12 +85,16 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
     })
   
     describe('failure', () => {
+      it('rejects if marketplace not approved', async () => {
+        await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+      })
+
       it('rejects incorrect art id', async () => {
-        await artFactory.putUpForSale('999', SALE_PRICE, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.putUpForSale(tokens.address, '999', SALE_PRICE, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
 
       it('rejects non owner sender', async () => {
-        await artFactory.putUpForSale(artID, SALE_PRICE, { from: buyer2 }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer2 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })
@@ -87,10 +105,11 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
     let orderID = '0'
 
     beforeEach(async() => {
-      await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
-      await artFactory.createArtFromOrder(orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
-      await artFactory.putUpForSale(artID, SALE_PRICE, { from: buyer1 })
+      await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
+      await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
+      await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
     })
   
     describe('success', () => {
@@ -121,19 +140,20 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
   
   describe('purchase', () => {
     let result
-    let artID = '1'
-    let orderID = '0'
+    const artID = '1'
+    const orderID = '0'
 
     beforeEach(async() => {
-      await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
-      await artFactory.createArtFromOrder(orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
-      await artFactory.putUpForSale(artID, SALE_PRICE, { from: buyer1 })
+      await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
+      await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
+      await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
     })
   
     describe('success', () => {
       beforeEach(async() => {
-        result = await artFactory.purchase(artID, { from: buyer2, value: TOTAL_PURCHASE_PRICE })
+        result = await artFactory.purchase(tokens.address, artID, { from: buyer2, value: TOTAL_PURCHASE_PRICE })
       })
 
       it('tracks purchase', async () => {
@@ -158,19 +178,19 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
   
     describe('failure', () => {
       it('rejects incorrect art id', async () => {
-        await artFactory.purchase('999', { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.purchase(tokens.address, '999', { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
       })
 
       it('rejects if value does not match price', async () => {
-        await artFactory.purchase(artID, { from: buyer2, value: '1' }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.purchase(tokens.address, artID, { from: buyer2, value: '1' }).should.be.rejectedWith(EVM_REVERT)
       })
 
       // it('rejects if price not above 0', async () => {
-      //   await artFactory.purchase(artID, { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+      //   await artFactory.purchase(tokens.address, artID, { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
       // })
 
       it('rejects if buyer is seller', async () => {
-        await artFactory.purchase(artID, { from: buyer1, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.purchase(tokens.address, artID, { from: buyer1, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })

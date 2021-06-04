@@ -11,10 +11,14 @@ const {
   NAME,
   TOTAL_PRICE,
   PARENT_IDS,
-  NUM_LEGACIES
+  NUM_LEGACIES,
+  GEN_1,
+  TOKENS_NAME,
+  TOKENS_SYMBOL
 } = require('./helpers');
 const { expectEvent } = require('@openzeppelin/test-helpers');
 
+const Tokens = artifacts.require('./src.contracts/Tokens.sol')
 const ArtFactory = artifacts.require('./src/contracts/ArtFactory.sol');
 
 require('chai')
@@ -22,9 +26,12 @@ require('chai')
     .should()
 
 contract('Art - new art', ([owner, artist, buyer1]) => {
+  let tokens
   let artFactory
 
   beforeEach(async () => {
+    tokens = await Tokens.new(TOKENS_NAME, TOKENS_SYMBOL)
+
     artFactory = await ArtFactory.new(
       artist,
       ARTIST_FEE_PERCENTAGE,
@@ -35,6 +42,8 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
       MIN_LEGACIES,
       MAX_LEGACIES,
       { from: owner })
+    
+      await tokens.setMarketplaceAddress(artFactory.address, { from: owner })
   })
 
   describe('gen 0', () => {
@@ -42,7 +51,7 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
   
     describe('success', () => {
       beforeEach(async() => {
-        result = await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+        result = await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       })
   
       it('tracks new art gen 0 by artist', async () => {
@@ -62,6 +71,17 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
         const price = await artFactory.prices('0')
         price.toString().should.equal(BASE_ART_PRICE.toString(), 'prices mapping is correct')
       })
+
+      it('tracks ERC721', async () => {
+        const balanceOf = await tokens.balanceOf(artist)
+        balanceOf.toString().should.equal('1', 'balanceOf is correct')
+
+        const ownerOf = await tokens.ownerOf('0')
+        ownerOf.toString().should.equal(artist.toString(), 'ownerOf is correct')
+
+        const tokenURI = await tokens.tokenURI('0')
+        tokenURI.toString().should.equal(TOKEN_URI.toString(), 'tokenURI is correct')
+      })
       
       it('emits ArtGen0 event', async () => {
         expectEvent(result, 'ArtGen0', { id: '0', owner: artist, gen: '0', tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
@@ -70,7 +90,7 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
   
     describe('failure', () => {
       it('rejects non artist sender', async () => {
-        await artFactory.createArtGen0(TOKEN_URI, NAME, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })
@@ -78,15 +98,16 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
   describe('from order', () => {
     let result
     const orderID = '0'
+    const artID = '1'
 
     beforeEach(async() => {
-      await artFactory.createArtGen0(TOKEN_URI, NAME, { from: artist })
+      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
     })
   
     describe('success', () => {
       beforeEach(async() => {
-        result = await artFactory.createArtFromOrder(orderID, TOKEN_URI, NAME, '1', [0], [], buyer1, { from: artist })
+        result = await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
       })
   
       it('tracks new art from order by artist', async () => {
@@ -96,10 +117,10 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
         const artworkCount = await artFactory.artworkCount()
         artworkCount.toString().should.equal('2', 'artwork count is correct')
   
-        const art = await artFactory.artworks('1')
-        art.id.toString().should.equal('1', 'id is correct')
+        const art = await artFactory.artworks(artID)
+        art.id.toString().should.equal(artID.toString(), 'id is correct')
         art.owner.toString().should.equal(buyer1.toString(), 'owner is correct')
-        art.gen.toString().should.equal('1', 'gen is correct')
+        art.gen.toString().should.equal(GEN_1.toString(), 'gen is correct')
         art.tokenURI.toString().should.equal(TOKEN_URI.toString(), 'tokenURI is correct')
         art.name.toString().should.equal(NAME.toString(), 'name is correct')
         art.legacyCreated.should.equal(false, 'legacyCreated is correct')
@@ -115,19 +136,30 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
         const parent = await artFactory.artworks('0')
         parent.legacyCreated.should.equal(true, 'parent legacy created is true')
       })
+
+      it('tracks ERC721', async () => {
+        const balanceOf = await tokens.balanceOf(buyer1)
+        balanceOf.toString().should.equal(artID.toString(), 'balanceOf is correct')
+
+        const ownerOf = await tokens.ownerOf(artID)
+        ownerOf.toString().should.equal(buyer1.toString(), 'ownerOf is correct')
+
+        const tokenURI = await tokens.tokenURI(artID)
+        tokenURI.toString().should.equal(TOKEN_URI.toString(), 'tokenURI is correct')
+      })
       
       it('emits ArtFromOrder event', async () => {
         // TODO: expectEvent(result, 'ArtFromOrder', { id: '1', owner: artist, gen: '1', tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
       })
     })
-  
+
     describe('failure', () => {
       it('rejects incorrect orderID', async () => {
-        await artFactory.createArtFromOrder('999', TOKEN_URI, NAME, '1', [0], [], buyer1, { from: artist }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.createArtFromOrder(tokens.address, '999', TOKEN_URI, NAME, '1', [0], [], buyer1, { from: artist }).should.be.rejectedWith(EVM_REVERT)
       })
 
       it('rejects non artist sender', async () => {
-        await artFactory.createArtFromOrder(orderID, TOKEN_URI, NAME, '1', [0], [], buyer1, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, '1', [0], [], buyer1, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })

@@ -1,5 +1,7 @@
 export const EVM_REVERT = 'VM Exception while processing transaction: revert'
 
+export const TOKENS_NAME = "Art"
+export const TOKENS_SYMBOL = "ART"
 export const CONTRACT_FEE_PERCENTAGE = 1
 export const ARTIST_FEE_PERCENTAGE = 5
 export const BASE_ART_PRICE = 2000
