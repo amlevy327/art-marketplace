@@ -7,9 +7,12 @@ const {
   MAX_PARENTS,
   MIN_LEGACIES,
   MAX_LEGACIES,
-  PARENT_MULTIPLIER_PERCENTAGE
+  PARENT_MULTIPLIER_PERCENTAGE,
+  TOKENS_NAME,
+  TOKENS_SYMBOL
 } = require('./helpers');
 
+const Tokens = artifacts.require('./src.contracts/Tokens.sol')
 const ArtFactory = artifacts.require('./src/contracts/ArtFactory.sol');
 
 require('chai')
@@ -17,9 +20,12 @@ require('chai')
     .should()
 
 contract('Art - constructor', ([owner, artist]) => {
+  let tokens
   let artFactory
 
   beforeEach(async () => {
+    tokens = await Tokens.new(TOKENS_NAME, TOKENS_SYMBOL)
+
     artFactory = await ArtFactory.new(
       artist,
       ARTIST_FEE_PERCENTAGE,
@@ -101,4 +107,12 @@ contract('Art - constructor', ([owner, artist]) => {
       maxLegacies.toString().should.equal(MAX_LEGACIES.toString(), 'max legacies is correct')
     })
   })
+
+  describe('marketplace approval', () => {
+    it('approves successfully', async () => {
+      await tokens.approveMarketplace(artFactory.address, true, { from: artist })
+      const result = await tokens.isApprovedForAll(artist, artFactory.address)
+      result.should.equal(true, 'marketplace approval is correct')
+    })
+  })  
 })
