@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 // TODO: orders need timestamps
 // TODO: cant create multiple legacies
 // TODO: fix tests where artist is buyer
-// TODO: rejects order if filled or cancelled
+// TODO: tests for rejects order if filled or cancelled
 
 contract ArtFactory is Ownable {
 
