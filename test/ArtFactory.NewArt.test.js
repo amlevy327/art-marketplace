@@ -68,6 +68,7 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
         art.legacyCreated.should.equal(false, 'legacyCreated is correct')
         //TODO: art.parents.should.equal([], 'parents is correct')
         //TODO: art.siblings.should.equal([], 'siblings is correct')
+        art.timestamp.toString().length.should.be.at.least(1, 'timestamp is correct')
   
         const price = await artFactory.prices('0')
         price.toString().should.equal(BASE_ART_PRICE.toString(), 'prices mapping is correct')
@@ -128,6 +129,7 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
         art.legacyCreated.should.equal(false, 'legacyCreated is correct')
         //TODO: art.parents.should.equal([0], 'parents is correct')
         //TODO: art.siblings.should.equal([], 'siblings is correct')
+        art.timestamp.toString().length.should.be.at.least(1, 'timestamp is correct')
   
         const price = await artFactory.prices('1')
         price.toString().should.equal('0', 'prices mapping is correct')
