@@ -71,6 +71,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
         // TODO: order.parentIDS.toString().should.equal(_parentIDS.toString(), 'parentIDS is correct')
         order.numLegacies.toString().should.equal(NUM_LEGACIES.toString(), 'num legacies is correct')
         order.gen.toString().should.equal('1', 'gen is correct')
+        order.timestamp.toString().length.should.be.at.least(1, 'timestamp is correct')
 
         const contractAccountBalance = await artFactory.balances(artFactory.address)
         contractAccountBalance.toString().should.equal(ORDER_PRICE.toString(), 'contract account balance is correct')

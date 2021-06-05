@@ -7,9 +7,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 // TODO: 
-// TODO: cancelled orders balance transfers
-// TODO: art needs timestamps
-// TODO: orders need timestamps
 // TODO: cant create multiple legacies
 // TODO: fix tests where artist is buyer
 // TODO: tests for rejects order if filled or cancelled
@@ -50,6 +47,7 @@ contract ArtFactory is Ownable {
     bool legacyCreated;
     uint256[] parents;
     uint256[] siblings;
+    uint256 timestamp;
   }
 
   struct _Order {
@@ -59,16 +57,17 @@ contract ArtFactory is Ownable {
     uint256[] parentIDS;
     uint256 numLegacies;
     uint256 gen;
+    uint256 timestamp;
   }
 
-  event ArtGen0(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
-  event ArtFromOrder(uint256 id, uint256 orderID, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
-  event Order(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
-  event Accept(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
-  event Cancel(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen);
-  event ArtForSale(uint256 id, uint256 price, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
-  event SaleCancel(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
-  event Purchase(uint256 id, uint256 price, address indexed buyer, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings);
+  event ArtGen0(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event ArtFromOrder(uint256 id, uint256 orderID, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event Order(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen, uint256 timestamp);
+  event Accept(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen, uint256 timestamp);
+  event Cancel(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen, uint256 timestamp);
+  event ArtForSale(uint256 id, uint256 price, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event SaleCancel(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event Purchase(uint256 id, uint256 price, address indexed buyer, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
 
   constructor(
     address _artistFeeAccount,
@@ -147,13 +146,13 @@ contract ArtFactory is Ownable {
     uint256 _id = artworkCount;
     uint256[] memory arr;
 
-    artworks[_id] = Art(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
+    artworks[_id] = Art(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr, block.timestamp);
     artworkCount = artworkCount.add(1);
     prices[_id] = baseArtPrice;
 
     require(Tokens(_tokensAddress).createToken(msg.sender, _id, _tokenURI));
     
-    emit ArtGen0(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr);
+    emit ArtGen0(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr, block.timestamp);
   }
 
   function createArtFromOrder(address _tokensAddress, uint256 _orderID, string memory _tokenURI, string memory _name, uint256 _gen, uint256[] memory _parents, uint256[] memory _siblings, address _buyer) public onlyArtist {
@@ -162,7 +161,7 @@ contract ArtFactory is Ownable {
     require(acceptedOrders[_orderID] == true);
     
     uint256 _id = artworkCount;
-    artworks[_id] = Art(_id, _buyer, _gen, _tokenURI, _name, false, _parents, _siblings);
+    artworks[_id] = Art(_id, _buyer, _gen, _tokenURI, _name, false, _parents, _siblings, block.timestamp);
     
     filledOrders[_orderID] = true;
     artworkCount = artworkCount.add(1);
@@ -178,7 +177,7 @@ contract ArtFactory is Ownable {
 
     require(Tokens(_tokensAddress).createToken(_buyer, _id, _tokenURI));
     
-    emit ArtFromOrder(_id, _orderID, msg.sender, _gen, _tokenURI, _name, false, _parents, _siblings);
+    emit ArtFromOrder(_id, _orderID, msg.sender, _gen, _tokenURI, _name, false, _parents, _siblings, block.timestamp);
   }
 
   function putUpForSale(address _tokenAddress, uint256 _id, uint256 _price) public {
@@ -190,7 +189,7 @@ contract ArtFactory is Ownable {
 
     require(Tokens(_tokenAddress).isApprovedForAll(msg.sender, address(this)));
 
-    emit ArtForSale(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
+    emit ArtForSale(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings, block.timestamp);
   }
 
   function cancelSale(uint256 _id) public {
@@ -200,7 +199,7 @@ contract ArtFactory is Ownable {
 
     prices[_id] = 0;
     
-    emit SaleCancel(_id, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
+    emit SaleCancel(_id, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings, block.timestamp);
   }
 
   function purchase(address _tokenAddress, uint256 _id) public payable {
@@ -224,7 +223,7 @@ contract ArtFactory is Ownable {
 
     _art.owner = msg.sender;
     
-    emit Purchase(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
+    emit Purchase(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings, block.timestamp);
   }
 
   function createOrder(uint256[] memory _parentIDS, uint256 _numLegacies) public payable {
@@ -246,13 +245,13 @@ contract ArtFactory is Ownable {
     require(_price > 0);
     uint256 _contractFee = _price.mul(contractFeePercentage).div(100);
     require(msg.value == _price.add(_contractFee));
-    orders[_id] = _Order(_id, msg.sender, _price, _parentIDS, _numLegacies, _gen);
+    orders[_id] = _Order(_id, msg.sender, _price, _parentIDS, _numLegacies, _gen, block.timestamp);
     
     balances[address(this)] = balances[address(this)].add(_price);
     balances[contractFeeAccount] = balances[contractFeeAccount].add(_contractFee);
     orderCount = orderCount.add(1);
     
-    emit Order(_id, msg.sender, _price, _parentIDS, _numLegacies, _gen);
+    emit Order(_id, msg.sender, _price, _parentIDS, _numLegacies, _gen, block.timestamp);
   }
 
   function acceptOrder(uint256 _id) public onlyArtist {
@@ -261,7 +260,7 @@ contract ArtFactory is Ownable {
     require(cancelledOrders[_id] == false && filledOrders[_id] == false);
     acceptedOrders[_id] = true;
     
-    emit Accept(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
+    emit Accept(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen, block.timestamp);
   }
 
   function cancelOrder(uint256 _id) public {
@@ -273,7 +272,7 @@ contract ArtFactory is Ownable {
     balances[msg.sender] = balances[msg.sender].add(_order.price); // TODO: need to test
     balances[address(this)] = balances[address(this)].sub(_order.price); // TODO: need to test
     
-    emit Cancel(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
+    emit Cancel(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen, block.timestamp);
   }
 
   function withdrawBalance() public {
