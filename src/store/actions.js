@@ -31,3 +31,10 @@ export function artFactoryLoaded(contract) {
     contract
   }
 }
+
+export function artGen0Loaded(artGen0) {
+  return {
+    type: 'ART_GEN_0_LOADED',
+    artGen0
+  }
+}

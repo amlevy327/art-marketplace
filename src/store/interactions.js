@@ -3,7 +3,8 @@ import {
   web3Loaded,
   web3AccountLoaded,
   tokensLoaded,
-  artFactoryLoaded
+  artFactoryLoaded,
+  artGen0Loaded
 } from './actions'
 import Tokens from '../abis/Tokens.json'
 import ArtFactory from '../abis/ArtFactory.json'
@@ -51,4 +52,14 @@ export const loadArtFactory = async (web3, networkId, dispatch) => {
     console.log('Contract not deployed to the current network. Please select another network with Metamask.')
     return null
   }
+}
+
+export const loadAllArt = async (artFactory, dispatch) => {
+  // art gen 0
+  const artGen0Stream = await artFactory.getPastEvents('ArtGen0', { fromBlock: 0, toBlock: 'latest' })
+  console.log('artGen0Stream: ', artGen0Stream)
+  const artGen0 = artGen0Stream.map((event) => event.returnValues)
+  dispatch(artGen0Loaded(artGen0))
+
+  // art from order
 }

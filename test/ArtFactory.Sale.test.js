@@ -20,7 +20,10 @@ const {
   ORDER_PRICE,
   CONTRACT_FEE,
   TOKENS_NAME,
-  TOKENS_SYMBOL
+  TOKENS_SYMBOL,
+  GEN0_SALE_PRICE,
+  GEN0_CONTRACT_CUT,
+  GEN0_TOTAL_PRICE
 } = require('./helpers');
 const { expectEvent } = require('@openzeppelin/test-helpers');
 
@@ -31,7 +34,7 @@ require('chai')
     .use(require('chai-as-promised'))
     .should()
 
-contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
+contract('Art - sale', ([owner, artist, buyer1, buyer2, buyer3]) => {
   let tokens
   let artFactory
 
@@ -139,13 +142,14 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
       })
     })
   })
-  
-  describe('purchase', () => {
+
+  describe('purchase - non artist owner', () => {
     let result
     const artID = '1'
     const orderID = '0'
 
     beforeEach(async() => {
+      await tokens.approveMarketplace(artFactory.address, true, { from: artist })
       await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
       await artFactory.acceptOrder(orderID, { from: artist })
@@ -160,6 +164,7 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
       })
 
       it('tracks purchase', async () => {
+
         const art = await artFactory.artworks(artID)
         art.owner.toString().should.equal(buyer2.toString(), 'new owner is correct')
         
@@ -172,6 +177,57 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
         artistBalance.toString().should.equal((ORDER_PRICE + ARTIST_CUT).toString(), 'artist balance is correct')
         const contractBalance = await artFactory.balances(owner)
         contractBalance.toString().should.equal((CONTRACT_FEE + CONTRACT_CUT).toString(), 'contract balance is correct')
+      })
+
+      it('emits Purchase event', async () => {
+        // TODO: expectEvent(result, 'Purchase', { id: artID, price: SALE_PRICE.toString(), buyer: buyer2, gen: GEN_1.toString(), tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
+      })
+    })
+  
+    describe('failure', () => {
+      it('rejects incorrect art id', async () => {
+        await artFactory.purchase(tokens.address, '999', { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+      })
+
+      it('rejects if value does not match price', async () => {
+        await artFactory.purchase(tokens.address, artID, { from: buyer2, value: '1' }).should.be.rejectedWith(EVM_REVERT)
+      })
+
+      // it('rejects if price not above 0', async () => {
+      //   await artFactory.purchase(tokens.address, artID, { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+      // })
+
+      it('rejects if buyer is seller', async () => {
+        await artFactory.purchase(tokens.address, artID, { from: buyer1, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+      })
+    })
+  })
+  
+  describe('purchase - artist owner', () => {
+    let result
+    const artID = '0'
+
+    beforeEach(async() => {
+      await tokens.approveMarketplace(artFactory.address, true, { from: artist })
+      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
+    })
+  
+    describe('success', () => {
+      beforeEach(async() => {
+        result = await artFactory.purchase(tokens.address, artID, { from: buyer2, value: GEN0_TOTAL_PRICE })
+      })
+
+      it('tracks purchase from artist', async () => {
+        const art = await artFactory.artworks('0')
+        art.owner.toString().should.equal(buyer2.toString(), 'new owner is correct')
+        
+        const price = await artFactory.prices('0')
+        price.toString().should.equal('0', 'price reset to 0')
+
+        const artistBalance = await artFactory.balances(artist)
+        artistBalance.toString().should.equal(GEN0_SALE_PRICE.toString(), 'artist balance is correct')
+        const contractBalance = await artFactory.balances(owner)
+        contractBalance.toString().should.equal(GEN0_CONTRACT_CUT.toString(), 'contract balance is correct')
       })
       
       it('emits Purchase event', async () => {

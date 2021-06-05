@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 // TODO: cant create multiple legacies
 // TODO: fix tests where artist is buyer
 // TODO: tests for rejects order if filled or cancelled
+// TODO: tests for purchase if from artist or not
 
 contract ArtFactory is Ownable {
 
@@ -209,14 +210,25 @@ contract ArtFactory is Ownable {
     uint256 _price = prices[_id];
     require(_price > 0);
 
-    uint256 artistCut = _price.mul(artistFeePercentage).div(100);
+    uint256 totalPrice;
+    uint256 artistCut;
     uint256 contractCut = _price.mul(contractFeePercentage).div(100);
-    uint256 totalPrice = _price.add(artistCut).add(contractCut);
+    
+    if(_art.owner == artistFeeAccount){
+      totalPrice = _price.add(contractCut);
+
+      balances[_art.owner] = balances[_art.owner].add(_price);
+      balances[contractFeeAccount] = balances[contractFeeAccount].add(contractCut);
+    } else {
+      artistCut = _price.mul(artistFeePercentage).div(100);
+      totalPrice = _price.add(artistCut).add(contractCut);
+
+      balances[_art.owner] = balances[_art.owner].add(_price);
+      balances[artistFeeAccount] = balances[artistFeeAccount].add(artistCut);
+      balances[contractFeeAccount] = balances[contractFeeAccount].add(contractCut);
+    }
     require(msg.value == totalPrice);
 
-    balances[_art.owner] = balances[_art.owner].add(_price);
-    balances[artistFeeAccount] = balances[artistFeeAccount].add(artistCut);
-    balances[contractFeeAccount] = balances[contractFeeAccount].add(contractCut);
     prices[_id] = 0;
 
     require(Tokens(_tokenAddress).transferToken(_art.owner, msg.sender, _id));
