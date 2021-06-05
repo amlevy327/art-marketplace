@@ -14,7 +14,7 @@ function web3(state = {}, action) {
 function tokens(state = {}, action) {
   switch(action.type) {
     case 'TOKENS_LOADED':
-      return { ...state, tokens: action.contract }
+      return { ...state, loaded: true, tokens: action.contract }
     default:
       return state
   }
@@ -23,7 +23,9 @@ function tokens(state = {}, action) {
 function artFactory(state = {}, action) {
   switch(action.type) {
     case 'ART_FACTORY_LOADED':
-      return { ...state, artFactory: action.contract }
+      return { ...state, loaded: true, artFactory: action.contract }
+    case 'ART_GEN_0_LOADED':
+      return { ...state, artGen0: {loaded: true, data: action.artGen0} }
     default:
       return state
   }

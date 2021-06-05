@@ -44,7 +44,7 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
       MAX_LEGACIES,
       { from: owner })
     
-      await tokens.setMarketplaceAddress(artFactory.address, { from: owner })
+    await tokens.setMarketplaceAddress(artFactory.address, { from: owner })
   })
 
   describe('gen 0', () => {

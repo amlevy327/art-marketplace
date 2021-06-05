@@ -4,9 +4,11 @@ import {
   loadAccount,
   loadArtFactory,
   loadTokens,
-  loadWeb3
+  loadWeb3,
+  loadAllArt
 } from '../store/interactions'
 import './App.css'
+import ArtTokens from './ArtTokens'
 import Navbar from './Navbar'
 
 class App extends Component {
@@ -27,6 +29,9 @@ class App extends Component {
     if(!artFactory) {
       window.alert('Token smart contract not detected on the current network. Please select another network with Metamask.')
     }
+
+    // move this to content
+    await loadAllArt(artFactory, dispatch) 
   }
 
   render() {
@@ -85,17 +90,7 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <div className="vertical">
-            <div className="card bg-dark text-white">
-              <div className="card-header">
-                Art
-              </div>
-              <div className="card-body">
-                <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="/#" className="card-link">Card link</a>
-              </div>
-            </div>
-          </div>
+          <ArtTokens />
         </div>
       </div>
     );
