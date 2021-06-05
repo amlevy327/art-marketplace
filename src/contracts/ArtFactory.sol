@@ -6,12 +6,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-// todo
-// cancelled orders balance transfers
-// art needs timestamps
-// orders need timestamps
-// withdraw
-// tests - token ERC721 stuff
+// TODO: 
+// TODO: cancelled orders balance transfers
+// TODO: art needs timestamps
+// TODO: orders need timestamps
+// TODO: cant create multiple legacies
+// TODO: fix tests where artist is buyer
+// TODO: rejects order if filled or cancelled
 
 contract ArtFactory is Ownable {
 
@@ -158,6 +159,7 @@ contract ArtFactory is Ownable {
   function createArtFromOrder(address _tokensAddress, uint256 _orderID, string memory _tokenURI, string memory _name, uint256 _gen, uint256[] memory _parents, uint256[] memory _siblings, address _buyer) public onlyArtist {
     _Order storage _order = orders[_orderID];
     require(_order.id == _orderID);
+    require(acceptedOrders[_orderID] == true);
     
     uint256 _id = artworkCount;
     artworks[_id] = Art(_id, _buyer, _gen, _tokenURI, _name, false, _parents, _siblings);
@@ -169,6 +171,10 @@ contract ArtFactory is Ownable {
         artworks[_parents[i]].legacyCreated = true;
       }
     }
+
+    uint256 _price = _order.price;
+    balances[artistFeeAccount] = balances[artistFeeAccount].add(_price);
+    balances[address(this)] = balances[address(this)].sub(_price);
 
     require(Tokens(_tokensAddress).createToken(_buyer, _id, _tokenURI));
     
@@ -221,19 +227,14 @@ contract ArtFactory is Ownable {
     emit Purchase(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings);
   }
 
-  // function _transferAfterApproved(uint256 _id, address _buyer) private {
-  //   Art storage _art = artworks[_id];
-  //   safeTransferFrom(_art.owner, _buyer, _id);
-  // }
-
   function createOrder(uint256[] memory _parentIDS, uint256 _numLegacies) public payable {
     uint256 _numParents = _parentIDS.length;
-    uint256 _id = orderCount;
-    uint256 _gen = 1;
-    
     require(_numParents >= minParents && _numParents <= maxParents);
     require(_numLegacies >= minLegacies && _numLegacies <= maxLegacies);
     
+    uint256 _id = orderCount;
+    
+    uint256 _gen = 1;
     for(uint256 i=0;i<_numParents;i++) {
       require(artworks[_parentIDS[i]].owner == msg.sender);
       if (artworks[_parentIDS[i]].gen > _gen) {
@@ -247,7 +248,7 @@ contract ArtFactory is Ownable {
     require(msg.value == _price.add(_contractFee));
     orders[_id] = _Order(_id, msg.sender, _price, _parentIDS, _numLegacies, _gen);
     
-    balances[artistFeeAccount] = balances[artistFeeAccount].add(_price);
+    balances[address(this)] = balances[address(this)].add(_price);
     balances[contractFeeAccount] = balances[contractFeeAccount].add(_contractFee);
     orderCount = orderCount.add(1);
     
@@ -257,6 +258,7 @@ contract ArtFactory is Ownable {
   function acceptOrder(uint256 _id) public onlyArtist {
     _Order storage _order = orders[_id];
     require(_order.id == _id);
+    require(cancelledOrders[_id] == false && filledOrders[_id] == false);
     acceptedOrders[_id] = true;
     
     emit Accept(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
@@ -269,8 +271,16 @@ contract ArtFactory is Ownable {
     
     cancelledOrders[_id] = true;
     balances[msg.sender] = balances[msg.sender].add(_order.price); // TODO: need to test
-    balances[artistFeeAccount] = balances[artistFeeAccount].sub(_order.price); // TODO: need to test
+    balances[address(this)] = balances[address(this)].sub(_order.price); // TODO: need to test
     
     emit Cancel(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen);
+  }
+
+  function withdrawBalance() public {
+    address payable _account = payable(msg.sender);
+    require(balances[_account] > 0 );
+    
+    balances[_account] = 0;
+    _account.transfer(balances[_account]);
   }
 }

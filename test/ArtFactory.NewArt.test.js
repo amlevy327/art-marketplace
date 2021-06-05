@@ -14,7 +14,8 @@ const {
   NUM_LEGACIES,
   GEN_1,
   TOKENS_NAME,
-  TOKENS_SYMBOL
+  TOKENS_SYMBOL,
+  ORDER_PRICE
 } = require('./helpers');
 const { expectEvent } = require('@openzeppelin/test-helpers');
 
@@ -107,6 +108,7 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
   
     describe('success', () => {
       beforeEach(async() => {
+        await artFactory.acceptOrder(orderID, { from: artist })
         result = await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
       })
   
@@ -137,6 +139,14 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
         parent.legacyCreated.should.equal(true, 'parent legacy created is true')
       })
 
+      it('tracks balance transfers', async () => {
+        const balanceArtist = await artFactory.balances(artist)
+        balanceArtist.toString().should.equal(ORDER_PRICE.toString(), 'artist balance is correct')
+
+        const balanceContract = await artFactory.balances(artFactory.address)
+        balanceContract.toString().should.equal('0', 'contract balance is correct')
+      })
+
       it('tracks ERC721', async () => {
         const balanceOf = await tokens.balanceOf(buyer1)
         balanceOf.toString().should.equal(artID.toString(), 'balanceOf is correct')
@@ -155,11 +165,17 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
 
     describe('failure', () => {
       it('rejects incorrect orderID', async () => {
+        await artFactory.acceptOrder(orderID, { from: artist })
         await artFactory.createArtFromOrder(tokens.address, '999', TOKEN_URI, NAME, '1', [0], [], buyer1, { from: artist }).should.be.rejectedWith(EVM_REVERT)
       })
 
       it('rejects non artist sender', async () => {
+        await artFactory.acceptOrder(orderID, { from: artist })
         await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, '1', [0], [], buyer1, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+      })
+
+      it('rejects if not accepted', async () => {
+        await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, '1', [0], [], buyer1, { from: artist }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })

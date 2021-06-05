@@ -60,6 +60,7 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
     beforeEach(async() => {
       await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
+      await artFactory.acceptOrder(orderID, { from: artist })
       await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
     })
   
@@ -107,6 +108,7 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
     beforeEach(async() => {
       await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
+      await artFactory.acceptOrder(orderID, { from: artist })
       await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
       await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
       await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
@@ -146,6 +148,7 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
     beforeEach(async() => {
       await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
       await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
+      await artFactory.acceptOrder(orderID, { from: artist })
       await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
       await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
       await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
@@ -191,6 +194,42 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2]) => {
 
       it('rejects if buyer is seller', async () => {
         await artFactory.purchase(tokens.address, artID, { from: buyer1, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+      })
+    })
+  })
+
+  describe('withdrawBalance', () => {
+    let result
+    const artID = '1'
+    const orderID = '0'
+
+    beforeEach(async() => {
+      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
+      await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
+      await artFactory.acceptOrder(orderID, { from: artist })
+      await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
+    })
+  
+    describe('success', () => {
+      beforeEach(async() => {
+        result = await artFactory.withdrawBalance({ from: artist })
+      })
+
+      it('tracks withdraw', async () => {
+
+        // const sellerBalance = await artFactory.balances(buyer1)
+        // sellerBalance.toString().should.equal(SALE_PRICE.toString(), 'seller balance is correct')
+        // const artistBalance = await artFactory.balances(artist)
+      })
+      
+      // it('emits Withdraw event', async () => {
+      //   expectEvent(result, 'Withdraw', { id: artID, price: SALE_PRICE.toString(), buyer: buyer2, gen: GEN_1.toString(), tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
+      // })
+    })
+  
+    describe('failure', () => {
+      it('rejects if balance less than 0', async () => {
+        await artFactory.withdrawBalance({ from: buyer2 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })

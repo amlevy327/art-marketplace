@@ -72,8 +72,8 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
         order.numLegacies.toString().should.equal(NUM_LEGACIES.toString(), 'num legacies is correct')
         order.gen.toString().should.equal('1', 'gen is correct')
 
-        const artistFeeAccountBalance = await artFactory.balances(artist)
-        artistFeeAccountBalance.toString().should.equal(ORDER_PRICE.toString(), 'artist fee account balance is correct')
+        const contractAccountBalance = await artFactory.balances(artFactory.address)
+        contractAccountBalance.toString().should.equal(ORDER_PRICE.toString(), 'contract account balance is correct')
 
         const contractFeeAccountBalance = await artFactory.balances(owner)
         contractFeeAccountBalance.toString().should.equal(CONTRACT_FEE.toString(), 'contract fee account balance is correct')
@@ -117,6 +117,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
   })
 
   describe('accept order', () => {
+    const orderID = '0'
 
     describe('success', () => {
       beforeEach(async() => {
@@ -125,7 +126,7 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
       })
 
       it('tracks accepted order by artist', async () => {
-        await artFactory.acceptOrder('0', { from: artist })
+        await artFactory.acceptOrder(orderID, { from: artist })
         const acceptedOrder = await artFactory.acceptedOrders('0')
         acceptedOrder.should.equal(true, 'accepted orders mapping correct')
       })
@@ -140,9 +141,19 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
       it('rejects invalid id', async () => {
         await artFactory.acceptOrder('100', { from: artist }).should.be.rejectedWith(EVM_REVERT)
       })
+      
+      // it('rejects if order filled', async () => {
+      //   //await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, '1', [0], [], buyer1, { from: artist })
+      //   await artFactory.acceptOrder(orderID, { from: artist }).should.be.rejectedWith(EVM_REVERT)
+      // })
+
+      // it('rejects if order cancelled', async () => {
+      //   //await artFactory.cancelOrder(orderID, { from: artist })
+      //   await artFactory.acceptOrder(orderID, { from: artist }).should.be.rejectedWith(EVM_REVERT)
+      // })
 
       it('rejects non buyer sender', async () => {
-        await artFactory.acceptOrder('0', { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+        await artFactory.acceptOrder(orderID, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
       })
     })
   })
@@ -162,10 +173,11 @@ contract('Art - orders', ([owner, artist, buyer1]) => {
         const cancelledOrder = await artFactory.cancelledOrders('0')
         cancelledOrder.should.equal(true, 'cancelled orders mapping correct')
 
-        // TODO: need another account to test
-        // const buyerAccountBalance = await artFactory.balances(artist)
-        // buyerAccountBalance.toString().should.equal('1100000000', 'buyer account balance is correct')
-        // same for artist account balance
+        const contractAccountBalance = await artFactory.balances(artFactory.address)
+        contractAccountBalance.toString().should.equal('0', 'contract account balance is correct')
+
+        const buyerAccountBalance = await artFactory.balances(artist)
+        buyerAccountBalance.toString().should.equal(ORDER_PRICE.toString(), 'buyer account balance is correct')
       })
 
       it('emits Cancel event', async () => {
