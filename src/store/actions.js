@@ -38,3 +38,10 @@ export function artGen0Loaded(artGen0) {
     artGen0
   }
 }
+
+export function purchasesLoaded(purchases) {
+  return {
+    type: 'PURCHASES_LOADED',
+    purchases
+  }
+}

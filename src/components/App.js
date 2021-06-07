@@ -5,11 +5,14 @@ import {
   loadArtFactory,
   loadTokens,
   loadWeb3,
-  loadAllArt
+  loadAllArt,
+  loadPurchases
 } from '../store/interactions'
+import { allLoadedSelector } from '../store/selectors'
 import './App.css'
 import ArtTokens from './ArtTokens'
 import Navbar from './Navbar'
+import Spinner from './Spinner'
 
 class App extends Component {
   componentWillMount() {
@@ -32,6 +35,8 @@ class App extends Component {
 
     // move this to content
     await loadAllArt(artFactory, dispatch) 
+    await loadPurchases(artFactory, dispatch)
+    
   }
 
   render() {
@@ -62,7 +67,7 @@ class App extends Component {
           <div className="vertical">
             <div className="card bg-dark text-white">
               <div className="card-header">
-                Card Title
+                My Art
               </div>
               <div className="card-body">
                 <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -90,7 +95,7 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <ArtTokens />
+          { this.props.showArtToken ? <ArtTokens /> : <Spinner /> }
         </div>
       </div>
     );
@@ -106,6 +111,7 @@ class App extends Component {
 
 function mapStateToProps(state) {
   return {
+    showArtToken: allLoadedSelector(state)
   }
 }
 
