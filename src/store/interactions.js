@@ -4,7 +4,8 @@ import {
   web3AccountLoaded,
   tokensLoaded,
   artFactoryLoaded,
-  artGen0Loaded
+  artGen0Loaded,
+  purchasesLoaded
 } from './actions'
 import Tokens from '../abis/Tokens.json'
 import ArtFactory from '../abis/ArtFactory.json'
@@ -62,4 +63,11 @@ export const loadAllArt = async (artFactory, dispatch) => {
   dispatch(artGen0Loaded(artGen0))
 
   // art from order
+}
+
+export const loadPurchases = async (artFactory, dispatch) => {
+  const purchasesStream = await artFactory.getPastEvents('Purchase', { fromBlock: 0, toBlock: 'latest' })
+  console.log('purchaseStream: ', purchasesStream)
+  const purchases = purchasesStream.map((event) => event.returnValues)
+  dispatch(purchasesLoaded(purchases))
 }

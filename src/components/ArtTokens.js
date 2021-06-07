@@ -3,18 +3,20 @@ import { connect } from "react-redux"
 import Spinner from './Spinner'
 import {
   artGen0LoadedSelector,
-  artGen0Selector
+  purchasesLoadedSelector,
+  updatedArtSelector
 } from '../store/selectors'
 
-const showArtGen0 = (artGen0) => {
+const showAllArt = (updatedArt) => {
+  console.log('showAllArt')
   return(
     <tbody>
-      { artGen0.map((art) => {
+      { updatedArt.map((art) => {
         return(
           <tr className={`order-${art.id}`} key={art.id}>
             <td>{art.id}</td>
             <td>{art.tokenURI}</td>
-            <td>{art.owner}</td>
+            <td>{art.currentOwner ? art.currentOwner : art.owner}</td>
             {/* <td>
               <img src="https://pngimg.com/uploads/apple/apple_PNG12405.png" alt="my text"></img>
             </td> */}
@@ -43,7 +45,7 @@ class ArtTokens extends Component {
                           <th>Owner</th>
                       </tr>
                   </thead>
-                  { this.props.artGen0Loaded ? showArtGen0(this.props.artGen0) : <Spinner type="table" />}
+                  { this.props.allArtAndPurchasesLoaded ? showAllArt(this.props.updatedArt) : <Spinner /> }
               </table >
           </div>
         </div>
@@ -53,9 +55,12 @@ class ArtTokens extends Component {
 }
 
 function mapStateToProps(state) {
+  const artGen0Loaded = artGen0LoadedSelector(state)
+  const purchasesLoaded = purchasesLoadedSelector(state)
+
   return {
-    artGen0Loaded: artGen0LoadedSelector(state),
-    artGen0: artGen0Selector(state)
+    allArtAndPurchasesLoaded: artGen0Loaded && purchasesLoaded,
+    updatedArt: updatedArtSelector(state)
   }
 }
 
