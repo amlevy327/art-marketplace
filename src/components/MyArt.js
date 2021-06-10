@@ -1,20 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux"
-import { Tab, Tabs } from 'react-bootstrap'
+import { Tabs, Tab } from 'react-bootstrap'
 import Spinner from './Spinner'
-import {
-  artGen0LoadedSelector,
-  purchasesLoadedSelector,
-  updatedArtSelector,
-  allAcceptedOrdersSelector,
-  allOpenOrdersSelector
-} from '../store/selectors'
+import { myAcceptedOrdersSelector, myOpenOrdersSelector, updatedMyArtSelector } from '../store/selectors'
 
-const showAllArt = (updatedArt) => {
-  // console.log('showAllArt')
+const showMyArt = (myArt) => {
   return(
     <tbody>
-      { updatedArt.map((art) => {
+      { myArt.map((art) => {
         return(
           <tr className={`order-${art.id}`} key={art.id}>
             <td>{art.id}</td>
@@ -31,10 +24,10 @@ const showAllArt = (updatedArt) => {
   )
 }
 
-const showAllAcceptedOrders = (allAcceptedOrders) => {
+const showMyAcceptedOrders = (myAcceptedOrders) => {
   return(
     <tbody>
-      { allAcceptedOrders.map((order) => {
+      { myAcceptedOrders.map((order) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
@@ -48,10 +41,10 @@ const showAllAcceptedOrders = (allAcceptedOrders) => {
   )
 }
 
-const showAllOpenOrders = (allOpenOrders) => {
+const showMyOpenOrders = (myOpenOrders) => {
   return(
     <tbody>
-      { allOpenOrders.map((order) => {
+      { myOpenOrders.map((order) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
@@ -65,12 +58,12 @@ const showAllOpenOrders = (allOpenOrders) => {
   )
 }
 
-class ArtTokens extends Component {
+class MyArt extends Component {
   render() {
     return (
       <div className="card bg-dark text-white">
         <div className="card-header">
-            Art
+            My Art
         </div>
         <div className="card-body">
           <Tabs defaultActiveKey="art" className="bg-dark text-white">
@@ -83,7 +76,8 @@ class ArtTokens extends Component {
                     <th>Owner</th>
                   </tr>
                 </thead>
-                { this.props.allArtAndPurchasesLoaded ? showAllArt(this.props.updatedArt) : <Spinner /> }
+                { showMyArt(this.props.myArt) }
+                {/* { this.props.showFilledOrders ? showMyFilledOrders(this.props) : <Spinner type="table" /> } */}
               </table>
             </Tab>
             <Tab eventKey="accepted" title="Accepted Orders" className="bg-dark">
@@ -95,7 +89,7 @@ class ArtTokens extends Component {
                     <th>Buyer</th>
                   </tr>
                 </thead>
-                { showAllAcceptedOrders(this.props.allAcceptedOrders) }
+                { showMyAcceptedOrders(this.props.myAcceptedOrders) }
               </table>
             </Tab>
             <Tab eventKey="open" title="Open Orders" className="bg-dark">
@@ -107,7 +101,7 @@ class ArtTokens extends Component {
                     <th>Buyer</th>
                   </tr>
                 </thead>
-                { showAllOpenOrders(this.props.allOpenOrders) }
+                { showMyOpenOrders(this.props.myOpenOrders) }
                 {/* { this.props.showOpenOrders ? showMyOpenOrders(this.props) : <Spinner type="table" />} */}
               </table>
             </Tab>
@@ -119,15 +113,11 @@ class ArtTokens extends Component {
 }
 
 function mapStateToProps(state) {
-  const artGen0Loaded = artGen0LoadedSelector(state)
-  const purchasesLoaded = purchasesLoadedSelector(state)
-
   return {
-    allArtAndPurchasesLoaded: artGen0Loaded && purchasesLoaded,
-    updatedArt: updatedArtSelector(state),
-    allAcceptedOrders: allAcceptedOrdersSelector(state),
-    allOpenOrders: allOpenOrdersSelector(state)
+    myArt: updatedMyArtSelector(state),
+    myAcceptedOrders: myAcceptedOrdersSelector(state),
+    myOpenOrders: myOpenOrdersSelector(state)
   }
 }
 
-export default connect(mapStateToProps)(ArtTokens)
+export default connect(mapStateToProps)(MyArt)

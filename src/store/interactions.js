@@ -5,7 +5,11 @@ import {
   tokensLoaded,
   artFactoryLoaded,
   artGen0Loaded,
-  purchasesLoaded
+  artFromOrderLoaded,
+  purchasesLoaded,
+  allOrdersLoaded,
+  cancelledOrdersLoaded,
+  acceptedOrdersLoaded,
 } from './actions'
 import Tokens from '../abis/Tokens.json'
 import ArtFactory from '../abis/ArtFactory.json'
@@ -63,6 +67,10 @@ export const loadAllArt = async (artFactory, dispatch) => {
   dispatch(artGen0Loaded(artGen0))
 
   // art from order
+  const artFromOrderStream = await artFactory.getPastEvents('ArtFromOrder', { fromBlock: 0, toBlock: 'latest' })
+  console.log('artFromOrderStream: ', artFromOrderStream)
+  const artFromOrder = artFromOrderStream.map((event) => event.returnValues)
+  dispatch(artFromOrderLoaded(artFromOrder))
 }
 
 export const loadPurchases = async (artFactory, dispatch) => {
@@ -70,4 +78,21 @@ export const loadPurchases = async (artFactory, dispatch) => {
   console.log('purchaseStream: ', purchasesStream)
   const purchases = purchasesStream.map((event) => event.returnValues)
   dispatch(purchasesLoaded(purchases))
+}
+
+export const loadAllOrders = async (artFactory, dispatch) => {
+  const allOrdersStream = await artFactory.getPastEvents('Order', { fromBlock: 0, toBlock: 'latest' })
+  console.log('allOrdersStream: ', allOrdersStream)
+  const allOrders = allOrdersStream.map((event) => event.returnValues)
+  dispatch(allOrdersLoaded(allOrders))
+
+  const cancelledStream = await artFactory.getPastEvents('Cancel', { fromBlock: 0, toBlock: 'latest' })
+  console.log('cancelledStream: ', cancelledStream)
+  const cancelledOrders = cancelledStream.map((event) => event.returnValues)
+  dispatch(cancelledOrdersLoaded(cancelledOrders))
+
+  const acceptedStream = await artFactory.getPastEvents('Accept', { fromBlock: 0, toBlock: 'latest' })
+  console.log('acceptedStream: ', acceptedStream)
+  const acceptedOrders = acceptedStream.map((event) => event.returnValues)
+  dispatch(acceptedOrdersLoaded(acceptedOrders))
 }
