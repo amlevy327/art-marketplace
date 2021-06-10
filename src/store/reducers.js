@@ -26,8 +26,16 @@ function artFactory(state = {}, action) {
       return { ...state, loaded: true, artFactory: action.contract }
     case 'ART_GEN_0_LOADED':
       return { ...state, artGen0: {loaded: true, data: action.artGen0} }
+    case 'ART_FROM_ORDER_LOADED':
+      return { ...state, artFromOrder: {loaded: true, data: action.artFromOrder} }
     case 'PURCHASES_LOADED':
       return { ...state, purchases: {loaded: true, data: action.purchases} }
+    case 'ALL_ORDERS_LOADED':
+      return { ...state, allOrders: {loaded: true, data: action.allOrders} }
+    case 'CANCELLED_ORDERS_LOADED':
+      return { ...state, cancelledOrders: {loaded: true, data: action.cancelledOrders} }
+    case 'ACCEPTED_ORDERS_LOADED':
+      return { ...state, acceptedOrders: {loaded: true, data: action.acceptedOrders} }
     default:
       return state
   }

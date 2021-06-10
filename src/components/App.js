@@ -6,13 +6,15 @@ import {
   loadTokens,
   loadWeb3,
   loadAllArt,
-  loadPurchases
+  loadPurchases,
+  loadAllOrders
 } from '../store/interactions'
 import { allLoadedSelector } from '../store/selectors'
 import './App.css'
-import ArtTokens from './ArtTokens'
 import Navbar from './Navbar'
 import Spinner from './Spinner'
+import ArtTokens from './ArtTokens'
+import MyArt from './MyArt'
 
 class App extends Component {
   componentWillMount() {
@@ -36,7 +38,9 @@ class App extends Component {
     // move this to content
     await loadAllArt(artFactory, dispatch) 
     await loadPurchases(artFactory, dispatch)
-    
+    await loadAllOrders(artFactory, dispatch)
+    // await loadCancelledOrders(artFactory, dispatch)
+    // await loadAcceptedOrders(artFactory, dispatch)
   }
 
   render() {
@@ -64,17 +68,7 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <div className="vertical">
-            <div className="card bg-dark text-white">
-              <div className="card-header">
-                My Art
-              </div>
-              <div className="card-body">
-                <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="/#" className="card-link">Card link</a>
-              </div>
-            </div>
-          </div>
+          { this.props.showAll ? <MyArt /> : <Spinner /> }
           <div className="vertical-split">
             <div className="card bg-dark text-white">
               <div className="card-header">
@@ -95,7 +89,7 @@ class App extends Component {
               </div>
             </div>
           </div>
-          { this.props.showArtToken ? <ArtTokens /> : <Spinner /> }
+          { this.props.showAll ? <ArtTokens /> : <Spinner /> }
         </div>
       </div>
     );
@@ -111,7 +105,7 @@ class App extends Component {
 
 function mapStateToProps(state) {
   return {
-    showArtToken: allLoadedSelector(state)
+    showAll: allLoadedSelector(state)
   }
 }
 

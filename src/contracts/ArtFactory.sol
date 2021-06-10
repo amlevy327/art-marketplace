@@ -272,7 +272,7 @@ contract ArtFactory is Ownable {
     require(cancelledOrders[_id] == false && filledOrders[_id] == false);
     acceptedOrders[_id] = true;
     
-    emit Accept(_id, msg.sender, _order.price, _order.parentIDS, _order.numLegacies, _order.gen, block.timestamp);
+    emit Accept(_id, _order.buyer, _order.price, _order.parentIDS, _order.numLegacies, _order.gen, block.timestamp);
   }
 
   function cancelOrder(uint256 _id) public {

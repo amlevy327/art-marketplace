@@ -39,9 +39,37 @@ export function artGen0Loaded(artGen0) {
   }
 }
 
+export function artFromOrderLoaded(artFromOrder) {
+  return {
+    type: 'ART_FROM_ORDER_LOADED',
+    artFromOrder
+  }
+}
+
 export function purchasesLoaded(purchases) {
   return {
     type: 'PURCHASES_LOADED',
     purchases
+  }
+}
+
+export function allOrdersLoaded(allOrders) {
+  return {
+    type: 'ALL_ORDERS_LOADED',
+    allOrders
+  }
+}
+
+export function cancelledOrdersLoaded(cancelledOrders) {
+  return {
+    type: 'CANCELLED_ORDERS_LOADED',
+    cancelledOrders
+  }
+}
+
+export function acceptedOrdersLoaded(acceptedOrders) {
+  return {
+    type: 'ACCEPTED_ORDERS_LOADED',
+    acceptedOrders
   }
 }

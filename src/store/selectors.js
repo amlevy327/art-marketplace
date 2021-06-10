@@ -1,4 +1,4 @@
-import { get } from 'lodash'
+import { get, reject } from 'lodash'
 import { createSelector } from 'reselect'
 
 const account = state => get(state, 'web3.account')
@@ -22,18 +22,21 @@ export const allLoadedSelector = createSelector(
   (al, pl) => (al && pl) 
 )
 
-export const attemptToWork = createSelector()
+// ART / TOKENS
 
 export const updatedArtSelector = createSelector(artGen0, purchases, (allArt, allPurchases) => {
-  console.log('updatedArtSelector')
-  console.log(`updatedArtSelector allArt length = ${allArt.length}`)
-  console.log(`updatedArtSelector allArt purch = ${allPurchases.length}`)
   allArt = decorateAllArt(allArt, allPurchases)
   return allArt
 })
 
+export const updatedMyArtSelector = createSelector(account, artGen0, purchases, (account, allArt, allPurchases) => {
+  allArt = decorateAllArt(allArt, allPurchases)
+  const myArt = allArt.filter((a) => a.currentOwner === account)
+  console.log('myArt: ', myArt)
+  return myArt
+})
+
 const decorateAllArt = (allArt, allPurchases) => {
-  console.log('decorateAllArt')
   return(
       allArt.map((art) => {
           art = addCurrentOwner(art, allPurchases)
@@ -43,15 +46,11 @@ const decorateAllArt = (allArt, allPurchases) => {
 }
 
 const addCurrentOwner = (art, allPurchases) => {
-  console.log('addCurrentOwner')
-  console.log(`addCurrentOwner artID = ${art.id}`)
-  
   let currentOwner
+  currentOwner = art.owner
   for(let i=0;i<allPurchases.length;i++){
-    console.log(`addCurrentOwner inside for loop, puchaseID = ${allPurchases[i].id}`)
     if(art.id === allPurchases[i].id) {
       currentOwner = allPurchases[i].buyer
-      console.log(`addCurrentOwner current owner = ${currentOwner}`)
     }
   }
 
@@ -61,40 +60,49 @@ const addCurrentOwner = (art, allPurchases) => {
   })
 }
 
-// export const allTokensSelector = createSelector(
-//   artGen0,
-//   (artGen0) => {
-//     //purchases = purchases.map((a,b) => a.timestamp - b.timestamp)
-//     const allTokens = decorateAllTokens(artGen0)
-//     return allTokens
-//   }
-// )
+// ORDERS
 
-// const decorateAllTokens = state => {
-//   return (
-//     artGen0.map((artGen0) => {
-//       artGen0 = updateOwner(rtGen0)
-//       return artGen0
-//     })
-//   )
-// }
+const allOrders = state => get(state, 'artFactory.allOrders.data', [])
+const cancelledOrders = state => get(state, 'artFactory.cancelledOrders.data', [])
+const acceptedOrders = state => get(state, 'artFactory.acceptedOrders.data', [])
+const filledOrders = state => get(state, 'artFactory.artFromOrder.data', [])
 
-// const updateOwner = (artGen0) => {
-//   console.log(`zzz updateOwner, artID = ${artGen0.id}`)
+const allOpenOrders = state => {
+  const all = allOrders(state)
+  const cancelled = cancelledOrders(state)
+  const accepted = acceptedOrders(state)
 
-//   const purch = purchases(state)
+  const allOpenOrders = reject(all, (order) => {
+    const orderCancelled = cancelled.some((o) => o.id === order.id)
+    const orderAccepted = accepted.some((o) => o.id === order.id)
+    return(orderCancelled || orderAccepted)
+  })
 
-//   let currentOwner
-//   for(let i=0;i<purchases.length;i++){
-//     console.log(`zzz inside for loop, puchaseID = ${purchases[i].id}`)
-//     if(artGen0.id === purchases[i].id) {
-//       currentOwner = purchases.buyer
-//       console.log(`zzz current owner = ${currentOwner}`)
-//     }
-//   }
+  return allOpenOrders
+}
 
-//   return({
-//     ...artGen0,
-//     currentOwner
-//   })
-// }
+export const allOpenOrdersSelector = createSelector(allOpenOrders, oo => oo)
+
+export const myOpenOrdersSelector = createSelector(allOpenOrders, account, (orders, account) => {
+  orders = orders.filter((o) => o.buyer === account)
+  return orders
+})
+
+const allAcceptedOrders = state => {
+  const accepted = acceptedOrders(state)
+  const filled = filledOrders(state)
+
+  const allAcceptedOrders = reject(accepted, (order) => {
+    const orderFilled = filled.some((o) => o.id === order.id)
+    return orderFilled
+  })
+  
+  return allAcceptedOrders
+}
+
+export const allAcceptedOrdersSelector = createSelector(allAcceptedOrders, ao => ao)
+
+export const myAcceptedOrdersSelector = createSelector(allAcceptedOrders, account, (orders, account) => {
+  orders = orders.filter((o) => o.buyer === account)
+  return orders
+}) 
