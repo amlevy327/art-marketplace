@@ -69,6 +69,15 @@ contract ArtFactory is Ownable {
   event ArtForSale(uint256 id, uint256 price, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
   event SaleCancel(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
   event Purchase(uint256 id, uint256 price, address indexed buyer, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event ContractFeePercentage(uint256 newAmount);
+  event ArtistFeePercentage(uint256 newAmount);
+  event BaseArtPrice(uint256 newAmount);
+  event ParentMultiplierPercentage(uint256 newAmount);
+  event MinParents(uint256 newAmount);
+  event MaxParents(uint256 newAmount);
+  event MinLegacies(uint256 newAmount);
+  event MaxLegacies(uint256 newAmount);
+
 
   constructor(
     address _artistFeeAccount,
@@ -94,6 +103,15 @@ contract ArtFactory is Ownable {
     maxParents = _maxParents;
     minLegacies = _minLegacies;
     maxLegacies = _maxLegacies;
+
+    emit ContractFeePercentage(contractFeePercentage);
+    emit ArtistFeePercentage(_artistFeePercentage);
+    emit BaseArtPrice(_baseArtPrice);
+    emit ParentMultiplierPercentage(_parentMultiplierPercentage);
+    emit MinParents(_minParents);
+    emit MaxParents(_maxParents);
+    emit MinLegacies(_minLegacies);
+    emit MaxLegacies(_maxLegacies);
   }
 
   modifier onlyArtist() {
@@ -112,35 +130,42 @@ contract ArtFactory is Ownable {
   function changeArtistFeePercentage(uint256 _artistFeePercentage) public onlyArtist {
     require(_artistFeePercentage > 0 && _artistFeePercentage < 100);
     artistFeePercentage = _artistFeePercentage;
+    emit ArtistFeePercentage(_artistFeePercentage);
   }
 
   function changeBaseArtPrice(uint256 _baseArtPrice) public onlyArtist {
     baseArtPrice = _baseArtPrice;
+    emit BaseArtPrice(_baseArtPrice);
   }
 
   function changeParentMultiplierPercentage(uint256 _parentMultiplierPercentage) public onlyArtist {
     require(_parentMultiplierPercentage > 0 && _parentMultiplierPercentage < 100);
     parentMultiplierPercentage = _parentMultiplierPercentage;
+    emit ParentMultiplierPercentage(_parentMultiplierPercentage);
   }
 
   function changeMinParents(uint256 _minParents) public onlyArtist {
     require(_minParents > 0 && _minParents <= maxParents);
     minParents = _minParents;
+    emit MinParents(_minParents);
   }
 
   function changeMaxParents(uint256 _maxParents) public onlyArtist {
     require(_maxParents >= minParents);
     maxParents = _maxParents;
+    emit MaxParents(_maxParents);
   }
 
   function changeMinLegacies(uint256 _minLegacies) public onlyArtist {
     require(_minLegacies > 0 && _minLegacies <= maxLegacies);
     minLegacies = _minLegacies;
+    emit MinLegacies(_minLegacies);
   }
 
   function changeMaxLegacies(uint256 _maxLegacies) public onlyArtist {
     require(_maxLegacies >= minLegacies);
     maxLegacies = _maxLegacies;
+    emit MaxLegacies(_maxLegacies);
   }
 
   function createArtGen0(address _tokensAddress, string memory _tokenURI, string memory _name) public onlyArtist {
