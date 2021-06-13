@@ -3,11 +3,12 @@ import { connect } from "react-redux"
 import { Tab, Tabs } from 'react-bootstrap'
 import Spinner from './Spinner'
 import {
-  artGen0LoadedSelector,
   purchasesLoadedSelector,
   updatedArtSelector,
   allAcceptedOrdersSelector,
-  allOpenOrdersSelector
+  allOpenOrdersSelector,
+  allArtLoadedSelector,
+  allOrderTypesLoadedSelector
 } from '../store/selectors'
 
 const showAllArt = (updatedArt) => {
@@ -83,7 +84,7 @@ class ArtTokens extends Component {
                     <th>Owner</th>
                   </tr>
                 </thead>
-                { this.props.allArtAndPurchasesLoaded ? showAllArt(this.props.updatedArt) : <Spinner /> }
+                { this.props.allArtLoaded ? showAllArt(this.props.updatedArt) : <Spinner type="table"/> }
               </table>
             </Tab>
             <Tab eventKey="accepted" title="Accepted Orders" className="bg-dark">
@@ -95,7 +96,7 @@ class ArtTokens extends Component {
                     <th>Buyer</th>
                   </tr>
                 </thead>
-                { showAllAcceptedOrders(this.props.allAcceptedOrders) }
+                { this.props.allOrdersLoaded ? showAllAcceptedOrders(this.props.allAcceptedOrders) : <Spinner type="table"/> }
               </table>
             </Tab>
             <Tab eventKey="open" title="Open Orders" className="bg-dark">
@@ -107,8 +108,7 @@ class ArtTokens extends Component {
                     <th>Buyer</th>
                   </tr>
                 </thead>
-                { showAllOpenOrders(this.props.allOpenOrders) }
-                {/* { this.props.showOpenOrders ? showMyOpenOrders(this.props) : <Spinner type="table" />} */}
+                { this.props.allOrdersLoaded ? showAllOpenOrders(this.props.allOpenOrders) : <Spinner type="table"/> }
               </table>
             </Tab>
           </Tabs>
@@ -119,11 +119,13 @@ class ArtTokens extends Component {
 }
 
 function mapStateToProps(state) {
-  const artGen0Loaded = artGen0LoadedSelector(state)
-  const purchasesLoaded = purchasesLoadedSelector(state)
+  const allArtLoaded = allArtLoadedSelector(state)
+  const allPurchasesLoaded = purchasesLoadedSelector(state)
+  const allOrderTypesLoaded = allOrderTypesLoadedSelector(state)
 
   return {
-    allArtAndPurchasesLoaded: artGen0Loaded && purchasesLoaded,
+    allArtLoaded: allArtLoaded && allPurchasesLoaded,
+    allOrdersLoaded: allArtLoaded && allOrderTypesLoaded,
     updatedArt: updatedArtSelector(state),
     allAcceptedOrders: allAcceptedOrdersSelector(state),
     allOpenOrders: allOpenOrdersSelector(state)

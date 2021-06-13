@@ -2,7 +2,18 @@ import React, { Component } from 'react'
 import { connect } from "react-redux"
 import { Tabs, Tab } from 'react-bootstrap'
 import Spinner from './Spinner'
-import { myAcceptedOrdersSelector, myOpenOrdersSelector, updatedMyArtSelector } from '../store/selectors'
+import {
+  myAcceptedOrdersSelector,
+  myOpenOrdersSelector,
+  updatedMyArtSelector,
+  allArtLoadedSelector,
+  purchasesLoadedSelector,
+  allOrderTypesLoadedSelector,
+  accountSelector,
+  artFactorySelector,
+  orderCancellingSelector
+} from '../store/selectors'
+import { cancelOpenOrder } from '../store/interactions'
 
 const showMyArt = (myArt) => {
   return(
@@ -41,7 +52,8 @@ const showMyAcceptedOrders = (myAcceptedOrders) => {
   )
 }
 
-const showMyOpenOrders = (myOpenOrders) => {
+const showMyOpenOrders = (props) => {
+  const { myOpenOrders, account, artFactory, dispatch } = props
   return(
     <tbody>
       { myOpenOrders.map((order) => {
@@ -49,7 +61,14 @@ const showMyOpenOrders = (myOpenOrders) => {
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
             <td>{order.gen}</td>
-            <td>{order.buyer}</td>
+            <td>{order.parentIDS.join(',')}</td>
+            <td
+                className="text-muted cancel-order"
+                onClick={(e) => {
+                  console.log('button click: cancel order')
+                  cancelOpenOrder(dispatch, artFactory, order, account)
+                }}
+            >X</td>
           </tr>
         )
       })
@@ -76,8 +95,7 @@ class MyArt extends Component {
                     <th>Owner</th>
                   </tr>
                 </thead>
-                { showMyArt(this.props.myArt) }
-                {/* { this.props.showFilledOrders ? showMyFilledOrders(this.props) : <Spinner type="table" /> } */}
+                { this.props.myArtLoaded ? showMyArt(this.props.myArt) : <Spinner type="table"/>}
               </table>
             </Tab>
             <Tab eventKey="accepted" title="Accepted Orders" className="bg-dark">
@@ -89,7 +107,7 @@ class MyArt extends Component {
                     <th>Buyer</th>
                   </tr>
                 </thead>
-                { showMyAcceptedOrders(this.props.myAcceptedOrders) }
+                { this.props.myOrdersLoaded ? showMyAcceptedOrders(this.props.myAcceptedOrders) : <Spinner type="table"/> }
               </table>
             </Tab>
             <Tab eventKey="open" title="Open Orders" className="bg-dark">
@@ -98,11 +116,11 @@ class MyArt extends Component {
                   <tr>
                     <th>ID</th>
                     <th>Gen</th>
-                    <th>Buyer</th>
+                    <th>Parents</th>
+                    <th>Cancel</th>
                   </tr>
                 </thead>
-                { showMyOpenOrders(this.props.myOpenOrders) }
-                {/* { this.props.showOpenOrders ? showMyOpenOrders(this.props) : <Spinner type="table" />} */}
+                { this.props.myOrdersLoaded ? showMyOpenOrders(this.props) : <Spinner type="table"/> }
               </table>
             </Tab>
           </Tabs>
@@ -113,10 +131,19 @@ class MyArt extends Component {
 }
 
 function mapStateToProps(state) {
+  const allArtLoaded = allArtLoadedSelector(state)
+  const allPurchasesLoaded = purchasesLoadedSelector(state)
+  const allOrderTypesLoaded = allOrderTypesLoadedSelector(state)
+  const orderCancelling = orderCancellingSelector(state)
+
   return {
+    myArtLoaded: allArtLoaded && allPurchasesLoaded,
+    myOrdersLoaded: allArtLoaded && allOrderTypesLoaded && !orderCancelling,
     myArt: updatedMyArtSelector(state),
     myAcceptedOrders: myAcceptedOrdersSelector(state),
-    myOpenOrders: myOpenOrdersSelector(state)
+    myOpenOrders: myOpenOrdersSelector(state),
+    account: accountSelector(state),
+    artFactory: artFactorySelector(state),
   }
 }
 

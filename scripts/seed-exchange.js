@@ -101,6 +101,26 @@ module.exports = async function(callback) {
     await wait(1)
     console.log('New art gen 0: id = 9')
 
+    result = await artFactory.createArtGen0(tokens.address, "101010", "Joe", { from: artist })
+    await wait(1)
+    console.log('New art gen 0: id = 10')
+
+    result = await artFactory.createArtGen0(tokens.address, "111111", "John", { from: artist })
+    await wait(1)
+    console.log('New art gen 0: id = 11')
+
+    result = await artFactory.createArtGen0(tokens.address, "121212", "Paul", { from: artist })
+    await wait(1)
+    console.log('New art gen 0: id = 12')
+
+    result = await artFactory.createArtGen0(tokens.address, "131313", "Rachel", { from: artist })
+    await wait(1)
+    console.log('New art gen 0: id = 13')
+
+    result = await artFactory.createArtGen0(tokens.address, "141414", "Adam", { from: artist })
+    await wait(1)
+    console.log('New art gen 0: id = 14')
+
     // purchases
 
     await artFactory.purchase(tokens.address, '0', { from: buyer1, value: GEN0_TOTAL_PRICE })
@@ -135,6 +155,22 @@ module.exports = async function(callback) {
     await wait(1)
     console.log('New art purchase gen0: id = 7')
 
+    await artFactory.purchase(tokens.address, '10', { from: buyer1, value: GEN0_TOTAL_PRICE })
+    await wait(1)
+    console.log('New art purchase gen0: id = 8')
+
+    await artFactory.purchase(tokens.address, '11', { from: buyer1, value: GEN0_TOTAL_PRICE })
+    await wait(1)
+    console.log('New art purchase gen0: id = 9')
+
+    await artFactory.purchase(tokens.address, '12', { from: buyer1, value: GEN0_TOTAL_PRICE })
+    await wait(1)
+    console.log('New art purchase gen0: id = 10')
+
+    await artFactory.purchase(tokens.address, '13', { from: buyer1, value: GEN0_TOTAL_PRICE })
+    await wait(1)
+    console.log('New art purchase gen0: id = 11')
+
     // create orders
 
     await artFactory.createOrder([0], 2, { from: buyer1, value: TOTAL_PRICE })
@@ -153,6 +189,14 @@ module.exports = async function(callback) {
     await wait(1)
     console.log('New order: id = 3')
 
+    await artFactory.createOrder([10], 2, { from: buyer1, value: TOTAL_PRICE })
+    await wait(1)
+    console.log('New order: id = 4')
+
+    await artFactory.createOrder([11,12], 1, { from: buyer1, value: TOTAL_PRICE })
+    await wait(1)
+    console.log('New order: id = 5')
+
     // accept orders
 
     await artFactory.acceptOrder('1', { from: artist })
@@ -163,7 +207,20 @@ module.exports = async function(callback) {
     await wait(1)
     console.log('Accepted order: id = 2')
 
+    await artFactory.acceptOrder('5', { from: artist })
+    await wait(1)
+    console.log('Accepted order: id = 3')
+
     // create arts from orders
+
+    await artFactory.createArtFromOrder(tokens.address, 5, "poiu", "JessieOrder", 1, [11,12], [], buyer1, { from: artist })
+    await wait(1)
+    console.log('Create art from order: id = 15')
+
+    // create art for sale
+    await artFactory.putUpForSale(tokens.address, 13, 30000, { from: buyer1 })
+    await wait(1)
+    console.log('Art id=13 for sale: id = 0')
 
 
   } catch (error) {
