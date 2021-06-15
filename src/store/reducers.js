@@ -24,11 +24,28 @@ function artFactory(state = {}, action) {
   switch(action.type) {
     case 'ART_FACTORY_LOADED':
       return { ...state, loaded: true, contract: action.contract }
-    
+
+    case 'CONTRACT_FEE_ACCOUNT_LOADED':
+      return { ...state, contractFeeAccount: { loaded: true, account: action.contractFeeAccount[0].newAddress } }
+    case 'ARTIST_FEE_ACCOUNT_LOADED':
+      return { ...state, artistFeeAccount: { loaded: true, account: action.artistFeeAccount[0].newAddress } }
     case 'CONTRACT_FEE_PERCENTAGE_LOADED':
         return { ...state, contractFeePercentage: {loaded: true, amount: action.contractFeePercentage[0].newAmount} }
     case 'ARTIST_FEE_PERCENTAGE_LOADED':
       return { ...state, artistFeePercentage: {loaded: true, amount: action.artistFeePercentage[0].newAmount} }
+    case 'ARTIST_FEE_PERCENTAGE_CHANGED':
+      return { ...state, artistFeePercentage: { ...state.artistFeePercentage, newAmount: action.artistFeePercentage } }
+    case 'ARTIST_FEE_PERCENTAGE_UPDATING':
+      return { ...state, artistFeePercentageUpdating: true }
+    case 'ARTIST_FEE_PERCENTAGE_UPDATED':
+      return {
+        ...state,
+        artistFeePercentageUpdating: false,
+        artistFeePercentage: {
+          ...state.artistFeePercentage,
+          amount: action.artistFeePercentage
+        }
+      }
     case 'BASE_ART_PRICE_LOADED':
       return { ...state, baseArtPrice: {loaded: true, amount: action.baseArtPrice[0].newAmount} }
     case 'PARENT_MULTIPLIER_PERCENTAGE_LOADED':
@@ -60,18 +77,18 @@ function artFactory(state = {}, action) {
       return { ...state, acceptedOrders: {loaded: true, data: action.acceptedOrders} }
     case 'ORDER_CANCELLING':
       return { ...state, orderCancelling: true }
-      case 'ORDER_CANCELLED':
-        return {
-            ...state,
-            orderCancelling: false,
-            cancelledOrders: {
-                ...state.cancelledOrders,
-                data: [
-                    ...state.cancelledOrders.data,
-                    action.order
-                ]
-            }
-        }
+    case 'ORDER_CANCELLED':
+      return {
+          ...state,
+          orderCancelling: false,
+          cancelledOrders: {
+              ...state.cancelledOrders,
+              data: [
+                  ...state.cancelledOrders.data,
+                  action.order
+              ]
+          }
+      }
     default:
       return state
   }

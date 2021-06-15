@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 // TODO: fix tests where artist is buyer
 // TODO: tests for rejects order if filled or cancelled
 // TODO: tests for purchase if from artist or not
+// TODO: test for events for settings both constructor and updates
 
 contract ArtFactory is Ownable {
 
@@ -69,6 +70,8 @@ contract ArtFactory is Ownable {
   event ArtForSale(uint256 id, uint256 price, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
   event SaleCancel(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
   event Purchase(uint256 id, uint256 price, address indexed buyer, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event ContractFeeAccount(address newAddress);
+  event ArtistFeeAccount(address newAddress);
   event ContractFeePercentage(uint256 newAmount);
   event ArtistFeePercentage(uint256 newAmount);
   event BaseArtPrice(uint256 newAmount);
@@ -104,6 +107,8 @@ contract ArtFactory is Ownable {
     minLegacies = _minLegacies;
     maxLegacies = _maxLegacies;
 
+    emit ContractFeeAccount(msg.sender);
+    emit ArtistFeeAccount(_artistFeeAccount);
     emit ContractFeePercentage(contractFeePercentage);
     emit ArtistFeePercentage(_artistFeePercentage);
     emit BaseArtPrice(_baseArtPrice);
@@ -121,10 +126,12 @@ contract ArtFactory is Ownable {
 
   function changeContractFeeAccount(address _contractFeeAccount) public onlyOwner {
     contractFeeAccount = _contractFeeAccount;
+    emit ContractFeeAccount(_contractFeeAccount);
   }
 
   function changeArtistFeeAccount(address _artistFeeAccount) public onlyArtist {
     artistFeeAccount = _artistFeeAccount;
+    emit ArtistFeeAccount(_artistFeeAccount);
   }
 
   function changeArtistFeePercentage(uint256 _artistFeePercentage) public onlyArtist {
