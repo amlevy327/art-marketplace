@@ -22,6 +22,18 @@ export const artFactoryLoadedSelector = createSelector(artFactoryLoaded, l => l)
 
 // SETTINGS
 
+const contractFeeAccountLoaded = state => get(state, 'artFactory.contractFeeAccount.loaded', false)
+export const contractFeeAccountLoadedSelector = createSelector(contractFeeAccountLoaded, l => l)
+
+const contractFeeAccount = state => get(state, 'artFactory.contractFeeAccount.newAddress', null)
+export const contractFeeAccountSelector = createSelector(contractFeeAccount, cfa => cfa)
+
+const artistFeeAccountLoaded = state => get(state, 'artFactory.artistFeeAccount.loaded', false)
+export const artistFeeAccountLoadedSelector = createSelector(artistFeeAccountLoaded, l => l)
+
+const artistFeeAccount = state => get(state, 'artFactory.artistFeeAccount.newAddress', null)
+export const artistFeeAccountSelector = createSelector(artistFeeAccount, afa => afa)
+
 const contractFeePercentageLoaded = state => get(state, 'artFactory.contractFeePercentage.loaded', false)
 export const contractFeePercentageLoadedSelector = createSelector(contractFeePercentageLoaded, l => l)
 

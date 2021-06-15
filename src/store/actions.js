@@ -38,6 +38,20 @@ export function artFactoryLoaded(contract) {
 
 // settings
 
+export function contractFeeAccountLoaded(contractFeeAccount) {
+  return {
+    type: 'CONTRACT_FEE_ACCOUNT_LOADED',
+    contractFeeAccount
+  }
+}
+
+export function artistFeeAccountLoaded(artistFeeAccount) {
+  return {
+    type: 'ARTIST_FEE_ACCOUNT_LOADED',
+    artistFeeAccount
+  }
+}
+
 export function contractFeePercentageLoaded(contractFeePercentage) {
   return {
     type: 'CONTRACT_FEE_PERCENTAGE_LOADED',
@@ -48,6 +62,26 @@ export function contractFeePercentageLoaded(contractFeePercentage) {
 export function artistFeePercentageLoaded(artistFeePercentage) {
   return {
     type: 'ARTIST_FEE_PERCENTAGE_LOADED',
+    artistFeePercentage
+  }
+}
+
+export function artistFeePercentageChanged(artistFeePercentage) {
+  return {
+    type: 'ARTIST_FEE_PERCENTAGE_CHANGED',
+    artistFeePercentage
+  }
+}
+
+export function artistFeePercentageUpdating() {
+  return {
+    type: 'ARTIST_FEE_PERCENTAGE_UPDATING'
+  }
+}
+
+export function artistFeePercentageUpdated(artistFeePercentage) {
+  return {
+    type: 'ARTIST_FEE_PERCENTAGE_UPDATED',
     artistFeePercentage
   }
 }
@@ -93,6 +127,35 @@ export function maxLegaciesLoaded(maxLegacies) {
     maxLegacies
   }
 }
+
+
+// artFactory.events.ArtistFeePercentage({}, (error, event) => {
+//   dispatch(artistFeePercentageUpdated(event.returnValues))
+// })
+
+// artFactory.events.BaseArtPrice({}, (error, event) =>{
+//   dispatch(baseArtPriceUpdated(event.returnValues))
+// })
+
+// artFactory.events.ParentMultiplierPercentage({}, (error, event) => {
+//   dispatch(parentMultiplierPercentageUpdated(event.returnValues))
+// })
+
+// artFactory.events.MinParents({}, (error, event) => {
+//   dipatch(minParentsUpdated(event.returnValues))
+// })
+
+// artFactory.events.MaxParents({}, (error, event) => {
+//   dipatch(maxParentsUpdated(event.returnValues))
+// })
+
+// artFactory.events.minLegacies({}, (error, event) => {
+//   dispatch(minLegaciesUpdated(event.returnValues))
+// })
+
+// artFactory.events.MaxLegacies({}, (error, event) => {
+//   dispatch(maxLegaciesUpdated(event.returnValues))
+// })
 
 // art
 

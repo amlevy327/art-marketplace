@@ -143,7 +143,7 @@ function mapStateToProps(state) {
     myAcceptedOrders: myAcceptedOrdersSelector(state),
     myOpenOrders: myOpenOrdersSelector(state),
     account: accountSelector(state),
-    artFactory: artFactorySelector(state),
+    artFactory: artFactorySelector(state)
   }
 }
 

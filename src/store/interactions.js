@@ -20,10 +20,16 @@ import {
   maxLegaciesLoaded,
   orderCancelling,
   artForSaleLoaded,
-  orderCancelled
+  orderCancelled,
+  artistFeePercentageUpdated,
+  artistFeePercentageUpdating,
+  contractFeeAccountLoaded,
+  artistFeeAccountLoaded
 } from './actions'
 import Tokens from '../abis/Tokens.json'
 import ArtFactory from '../abis/ArtFactory.json'
+
+// WEB3
 
 export const loadWeb3 = async (dispatch) => {
   if(typeof window.ethereum !== 'undefined'){
@@ -36,6 +42,8 @@ export const loadWeb3 = async (dispatch) => {
   }
 }
 
+// ACCOUNT
+
 export const loadAccount = async (web3, dispatch) => {
   const accounts = await web3.eth.getAccounts()
   const account = await accounts[0]
@@ -47,6 +55,8 @@ export const loadAccount = async (web3, dispatch) => {
     window.location.assign('https://metamask.io/')
   }
 }
+
+// CONTRACTS
 
 export const loadTokens = async (web3, networkId, dispatch) => {
   try {
@@ -70,7 +80,19 @@ export const loadArtFactory = async (web3, networkId, dispatch) => {
   }
 }
 
+// SETTINGS
+
 export const loadAllSettings = async (artFactory, dispatch) => {
+  // contract fee account
+  const contractFeeAccountStream = await artFactory.getPastEvents('ContractFeeAccount', { fromBlock: 0, toBlock: 'latest' })
+  const contractFeeAccount = contractFeeAccountStream.map((event) => event.returnValues)
+  dispatch(contractFeeAccountLoaded(contractFeeAccount))
+
+  // artist fee account
+  const artistFeeAccountStream = await artFactory.getPastEvents('ArtistFeeAccount', { fromBlock: 0, toBlock: 'latest' })
+  const artistFeeAccount = artistFeeAccountStream.map((event) => event.returnValues)
+  dispatch(artistFeeAccountLoaded(artistFeeAccount))
+
   // contract fee percentage
   const contractFeePercentageStream = await artFactory.getPastEvents('ContractFeePercentage', { fromBlock: 0, toBlock: 'latest' })
   const contractFeePercentage = contractFeePercentageStream.map((event) => event.returnValues)
@@ -112,6 +134,19 @@ export const loadAllSettings = async (artFactory, dispatch) => {
   dispatch(maxLegaciesLoaded(maxLegacies))
 }
 
+export const updateArtistFeePercentage = async (dispatch, artFactory, artistFeePercentage, account) => {
+  await artFactory.updateArtistFeePercentage(artistFeePercentage).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(artistFeePercentageUpdating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+// ART
+
 export const loadAllArt = async (artFactory, dispatch) => {
   // art gen 0
   const artGen0Stream = await artFactory.getPastEvents('ArtGen0', { fromBlock: 0, toBlock: 'latest' })
@@ -126,12 +161,23 @@ export const loadAllArt = async (artFactory, dispatch) => {
   dispatch(artFromOrderLoaded(artFromOrder))
 }
 
+// PURCHASES & SALES
+
 export const loadPurchases = async (artFactory, dispatch) => {
   const purchasesStream = await artFactory.getPastEvents('Purchase', { fromBlock: 0, toBlock: 'latest' })
   console.log('purchaseStream: ', purchasesStream)
   const purchases = purchasesStream.map((event) => event.returnValues)
   dispatch(purchasesLoaded(purchases))
 }
+
+export const loadArtForSale = async (artFactory, dispatch) => {
+  const artForSaleStream = await artFactory.getPastEvents('ArtForSale', { fromBlock: 0, toBlock: 'latest' })
+  console.log('artForSaleStream: ', artForSaleStream)
+  const artForSale = artForSaleStream.map((event) => event.returnValues)
+  dispatch(artForSaleLoaded(artForSale))
+}
+
+// ORDERS
 
 export const loadAllOrders = async (artFactory, dispatch) => {
   const allOrdersStream = await artFactory.getPastEvents('Order', { fromBlock: 0, toBlock: 'latest' })
@@ -150,16 +196,6 @@ export const loadAllOrders = async (artFactory, dispatch) => {
   dispatch(acceptedOrdersLoaded(acceptedOrders))
 }
 
-// EVENTS
-
-export const subscribeToEvents = async (artFactory, dispatch) => {
-  artFactory.events.Cancel({}, (error, event) => {
-    dispatch(orderCancelled(event.returnValues))
-  })
-}
-
-// TODO: NEED TO TEST STILL
-
 export const cancelOpenOrder = async (dispatch, artFactory, order, account) => {
   await artFactory.methods.cancelOrder(order.id).send({ from: account })
   .on('transactionHash', (hash) => {
@@ -171,11 +207,38 @@ export const cancelOpenOrder = async (dispatch, artFactory, order, account) => {
   })
 }
 
-// SALE
+// EVENTS
 
-export const loadArtForSale = async (artFactory, dispatch) => {
-  const artForSaleStream = await artFactory.getPastEvents('ArtForSale', { fromBlock: 0, toBlock: 'latest' })
-  console.log('artForSaleStream: ', artForSaleStream)
-  const artForSale = artForSaleStream.map((event) => event.returnValues)
-  dispatch(artForSaleLoaded(artForSale))
+export const subscribeToEvents = async (artFactory, dispatch) => {
+  artFactory.events.Cancel({}, (error, event) => {
+    dispatch(orderCancelled(event.returnValues))
+  })
+
+  artFactory.events.ArtistFeePercentage({}, (error, event) => {
+    dispatch(artistFeePercentageUpdated(event.returnValues))
+  })
+
+  // artFactory.events.BaseArtPrice({}, (error, event) =>{
+  //   dispatch(baseArtPriceUpdated(event.returnValues))
+  // })
+
+  // artFactory.events.ParentMultiplierPercentage({}, (error, event) => {
+  //   dispatch(parentMultiplierPercentageUpdated(event.returnValues))
+  // })
+
+  // artFactory.events.MinParents({}, (error, event) => {
+  //   dipatch(minParentsUpdated(event.returnValues))
+  // })
+
+  // artFactory.events.MaxParents({}, (error, event) => {
+  //   dipatch(maxParentsUpdated(event.returnValues))
+  // })
+
+  // artFactory.events.minLegacies({}, (error, event) => {
+  //   dispatch(minLegaciesUpdated(event.returnValues))
+  // })
+
+  // artFactory.events.MaxLegacies({}, (error, event) => {
+  //   dispatch(maxLegaciesUpdated(event.returnValues))
+  // })
 }
