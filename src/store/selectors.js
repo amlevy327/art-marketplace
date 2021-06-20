@@ -22,11 +22,15 @@ export const artFactoryLoadedSelector = createSelector(artFactoryLoaded, l => l)
 
 // SETTINGS
 
+// contract fee account
+
 const contractFeeAccountLoaded = state => get(state, 'artFactory.contractFeeAccount.loaded', false)
 export const contractFeeAccountLoadedSelector = createSelector(contractFeeAccountLoaded, l => l)
 
 const contractFeeAccount = state => get(state, 'artFactory.contractFeeAccount.newAddress', null)
 export const contractFeeAccountSelector = createSelector(contractFeeAccount, cfa => cfa)
+
+// artist fee account
 
 const artistFeeAccountLoaded = state => get(state, 'artFactory.artistFeeAccount.loaded', false)
 export const artistFeeAccountLoadedSelector = createSelector(artistFeeAccountLoaded, l => l)
@@ -34,11 +38,18 @@ export const artistFeeAccountLoadedSelector = createSelector(artistFeeAccountLoa
 const artistFeeAccount = state => get(state, 'artFactory.artistFeeAccount.account', null)
 export const artistFeeAccountSelector = createSelector(artistFeeAccount, afa => afa)
 
+const updatedArtistFeeAccount = state => get(state, 'artFactory.artistFeeAccount.newAccount', null)
+export const updatedArtistFeeAccountSelector = createSelector(updatedArtistFeeAccount, uafa => uafa)
+
+// contract fee percentage
+
 const contractFeePercentageLoaded = state => get(state, 'artFactory.contractFeePercentage.loaded', false)
 export const contractFeePercentageLoadedSelector = createSelector(contractFeePercentageLoaded, l => l)
 
 const contractFeePercentage = state => get(state, 'artFactory.contractFeePercentage.amount', null)
 export const contractFeePercentageSelector = createSelector(contractFeePercentage, cfp => cfp)
+
+// artist fee percentage
 
 const artistFeePercentageLoaded = state => get(state, 'artFactory.artistFeePercentage.loaded', false)
 export const artistFeePercentageLoadedSelector = createSelector(artistFeePercentageLoaded, l => l)
@@ -49,11 +60,18 @@ export const artistFeePercentageSelector = createSelector(artistFeePercentage, a
 const updatedArtistFeePercentage = state => get(state, 'artFactory.artistFeePercentage.newAmount', null)
 export const updatedArtistFeePercentageSelector = createSelector(updatedArtistFeePercentage, uafp => uafp)
 
+// base art price
+
 const baseArtPriceLoaded = state => get(state, 'artFactory.baseArtPrice.loaded', false)
 export const baseArtPriceLoadedSelector = createSelector(baseArtPriceLoaded, l => l)
 
 const baseArtPrice = state => get(state, 'artFactory.baseArtPrice.amount', null)
 export const baseArtPriceSelector = createSelector(baseArtPrice, bap => bap)
+
+const updatedBaseArtPrice = state => get(state, 'artFactory.baseArtPrice.newAmount', null)
+export const updatedBaseArtPriceSelector = createSelector(updatedBaseArtPrice, ubap => ubap)
+
+// parent multiplier percentage
 
 const parentMultiplierPercentageLoaded = state => get(state, 'artFactory.parentMultiplierPercentage.loaded', false)
 export const parentMultiplierPercentageLoadedSelector = createSelector(parentMultiplierPercentageLoaded, l => l)
@@ -61,11 +79,21 @@ export const parentMultiplierPercentageLoadedSelector = createSelector(parentMul
 const parentMultiplierPercentage = state => get(state, 'artFactory.parentMultiplierPercentage.amount', null)
 export const parentMultiplierPercentageSelector = createSelector(parentMultiplierPercentage, pmp => pmp)
 
+const updatedParentMultiplierPercentage = state => get(state, 'artFactory.parentMultiplierPercentage.newAmount', null)
+export const updatedParentMultiplierPercentageSelector = createSelector(updatedParentMultiplierPercentage, upmp => upmp)
+
+// min parents
+
 const minParentsLoaded = state => get(state, 'artFactory.minParents.loaded', false)
 export const minParentsLoadedSelector = createSelector(minParentsLoaded, l => l)
 
 const minParents = state => get(state, 'artFactory.minParents.amount', null)
 export const minParentsSelector = createSelector(minParents, mp => mp)
+
+const updatedMinParents = state => get(state, 'artFactory.minParents.newAmount', null)
+export const updatedMinParentsSelector = createSelector(updatedMinParents, ump => ump)
+
+// max parents
 
 const maxParentsLoaded = state => get(state, 'artFactory.maxParents.loaded', false)
 export const maxParentsLoadedSelector = createSelector(maxParentsLoaded, l => l)
@@ -73,17 +101,30 @@ export const maxParentsLoadedSelector = createSelector(maxParentsLoaded, l => l)
 const maxParents = state => get(state, 'artFactory.maxParents.amount', null)
 export const maxParentsSelector = createSelector(maxParents, mp => mp)
 
+const updatedMaxParents = state => get(state, 'artFactory.maxParents.newAmount', null)
+export const updatedMaxParentsSelector = createSelector(updatedMaxParents, ump => ump)
+
+// min legacies
+
 const minLegaciesLoaded = state => get(state, 'artFactory.minLegacies.loaded', false)
 export const minLegaciesLoadedSelector = createSelector(minLegaciesLoaded, l => l)
 
 const minLegacies = state => get(state, 'artFactory.minLegacies.amount', null)
 export const minLegaciesSelector = createSelector(minLegacies, ml => ml)
 
+const updatedMinLegacies = state => get(state, 'artFactory.minLegacies.newAmount', null)
+export const updatedMinLegaciesSelector = createSelector(updatedMinLegacies, uml => uml)
+
+// max legacies
+
 const maxLegaciesLoaded = state => get(state, 'artFactory.maxLegacies.loaded', false)
 export const maxLegaciesLoadedSelector = createSelector(maxLegaciesLoaded, l => l)
 
 const maxLegacies = state => get(state, 'artFactory.maxLegacies.amount', null)
 export const maxLegaciesSelector = createSelector(maxLegacies, ml => ml)
+
+const updatedMaxLegacies = state => get(state, 'artFactory.maxLegacies.newAmount', null)
+export const updatedMaxLegaciesSelector = createSelector(updatedMaxLegacies, uml => uml)
 
 // SALES & PURCHASES
 
