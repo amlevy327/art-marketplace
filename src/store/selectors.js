@@ -148,36 +148,18 @@ export const purchasesSelector = createSelector(purchases, p => p)
 
 // ART / TOKENS
 
-const artGen0Loaded = state => get(state, 'artFactory.artGen0.loaded', false)
-export const artGen0LoadedSelector = createSelector(artGen0Loaded, al => al)
+const allArtLoaded = state => get(state, 'artFactory.newArt.loaded', false)
+export const allArtLoadedSelector = createSelector(allArtLoaded, na => na)
 
-const artGen0 = state => get(state, 'artFactory.artGen0.data', [])
-export const artGen0Selector = createSelector(artGen0, a => a)
+const allArt = state => get(state, 'artFactory.newArt.data', [])
+export const allArtSelector = createSelector(allArt, a => a)
 
-const artFromOrderLoaded = state => get(state, 'artFactory.artFromOrder.loaded', false)
-export const artFromOrderLoadedSelector = createSelector(artFromOrderLoaded, al => al)
-
-const artFromOrder = state => get(state, 'artFactory.artFromOrder.data', [])
-export const artFromOrderSelector = createSelector(artFromOrder, a => a)
-
-export const allArtLoadedSelector = createSelector(
-  artGen0Loaded,
-  artFromOrderLoaded,
-  (ag0, afo) => (ag0 && afo)
-)
-
-// const allArt = (artGen0, artFromOrder) => {
-//   const allArt = artGen0 + artFromOrder
-//   console.log('allArt: ', allArt)
-//   return allArt
-// }
-
-export const updatedArtSelector = createSelector(artGen0, purchases, (allArt, allPurchases) => {
+export const updatedArtSelector = createSelector(allArt, purchases, (allArt, allPurchases) => {
   allArt = decorateAllArt(allArt, allPurchases)
   return allArt
 })
 
-export const updatedMyArtSelector = createSelector(account, artGen0, purchases, (account, allArt, allPurchases) => {
+export const updatedMyArtSelector = createSelector(account, allArt, purchases, (account, allArt, allPurchases) => {
   allArt = decorateAllArt(allArt, allPurchases)
   const myArt = allArt.filter((a) => a.currentOwner === account)
   console.log('myArt: ', myArt)
@@ -255,7 +237,8 @@ export const myOpenOrdersSelector = createSelector(allOpenOrders, account, (orde
 
 const allAcceptedOrders = state => {
   const accepted = acceptedOrders(state)
-  const filled = artFromOrder(state)
+  const allArtwork = allArt(state)
+  const filled = allArtwork.filter((o) => o.orderID === 999999)
 
   const allAcceptedOrders = reject(accepted, (order) => {
     const orderFilled = filled.some((o) => o.id === order.id)
@@ -275,7 +258,7 @@ export const myAcceptedOrdersSelector = createSelector(allAcceptedOrders, accoun
 // REFACTOR
 
 export const allLoadedSelector = createSelector(
-  artGen0LoadedSelector,
+  allArtLoadedSelector,
   purchasesLoadedSelector,
-  (al, pl) => (al && pl) 
+  (aa, pl) => (aa && pl) 
 )

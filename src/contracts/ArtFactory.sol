@@ -62,8 +62,7 @@ contract ArtFactory is Ownable {
     uint256 timestamp;
   }
 
-  event ArtGen0(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
-  event ArtFromOrder(uint256 id, uint256 orderID, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event NewArt(uint256 id, uint256 orderID, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
   event Order(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen, uint256 timestamp);
   event Accept(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen, uint256 timestamp);
   event Cancel(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen, uint256 timestamp);
@@ -185,7 +184,7 @@ contract ArtFactory is Ownable {
 
     require(Tokens(_tokensAddress).createToken(msg.sender, _id, _tokenURI));
     
-    emit ArtGen0(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr, block.timestamp);
+    emit NewArt(_id, 999999,msg.sender, 0, _tokenURI, _name, false, arr, arr, block.timestamp);
   }
 
   function createArtFromOrder(address _tokensAddress, uint256 _orderID, string memory _tokenURI, string memory _name, uint256 _gen, uint256[] memory _parents, uint256[] memory _siblings, address _buyer) public onlyArtist {
@@ -210,7 +209,7 @@ contract ArtFactory is Ownable {
 
     require(Tokens(_tokensAddress).createToken(_buyer, _id, _tokenURI));
     
-    emit ArtFromOrder(_id, _orderID, msg.sender, _gen, _tokenURI, _name, false, _parents, _siblings, block.timestamp);
+    emit NewArt(_id, _orderID, msg.sender, _gen, _tokenURI, _name, false, _parents, _siblings, block.timestamp);
   }
 
   function putUpForSale(address _tokenAddress, uint256 _id, uint256 _price) public {

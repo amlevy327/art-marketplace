@@ -166,10 +166,8 @@ function artFactory(state = {}, action) {
         }
       }
     
-    case 'ART_GEN_0_LOADED':
-      return { ...state, artGen0: {loaded: true, data: action.artGen0} }
-    case 'ART_FROM_ORDER_LOADED':
-      return { ...state, artFromOrder: {loaded: true, data: action.artFromOrder} }
+    case 'NEW_ART_LOADED':
+      return { ...state, newArt: {loaded: true, data: action.newArt} }
     
     case 'ART_FOR_SALE_LOADED':
       return { ...state, artForSale: {loaded: true, data: action.artForSale } }

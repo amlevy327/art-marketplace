@@ -286,17 +286,10 @@ export function maxLegaciesUpdated(maxLegacies) {
 
 // art
 
-export function artGen0Loaded(artGen0) {
+export function newArtLoaded(newArt) {
   return {
-    type: 'ART_GEN_0_LOADED',
-    artGen0
-  }
-}
-
-export function artFromOrderLoaded(artFromOrder) {
-  return {
-    type: 'ART_FROM_ORDER_LOADED',
-    artFromOrder
+    type: 'NEW_ART_LOADED',
+    newArt
   }
 }
 
