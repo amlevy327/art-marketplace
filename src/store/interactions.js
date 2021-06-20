@@ -4,8 +4,7 @@ import {
   web3AccountLoaded,
   tokensLoaded,
   artFactoryLoaded,
-  artGen0Loaded,
-  artFromOrderLoaded,
+  newArtLoaded,
   purchasesLoaded,
   allOrdersLoaded,
   cancelledOrdersLoaded,
@@ -257,17 +256,11 @@ export const updateMaxLegacies = async (dispatch, artFactory, maxLegacies, accou
 // ART
 
 export const loadAllArt = async (artFactory, dispatch) => {
-  // art gen 0
-  const artGen0Stream = await artFactory.getPastEvents('ArtGen0', { fromBlock: 0, toBlock: 'latest' })
-  console.log('artGen0Stream: ', artGen0Stream)
-  const artGen0 = artGen0Stream.map((event) => event.returnValues)
-  dispatch(artGen0Loaded(artGen0))
-
-  // art from order
-  const artFromOrderStream = await artFactory.getPastEvents('ArtFromOrder', { fromBlock: 0, toBlock: 'latest' })
-  console.log('artFromOrderStream: ', artFromOrderStream)
-  const artFromOrder = artFromOrderStream.map((event) => event.returnValues)
-  dispatch(artFromOrderLoaded(artFromOrder))
+  // new art
+  const newArtOrderStream = await artFactory.getPastEvents('NewArt', { fromBlock: 0, toBlock: 'latest' })
+  console.log('newArtOrderStream: ', newArtOrderStream)
+  const newArt = newArtOrderStream.map((event) => event.returnValues)
+  dispatch(newArtLoaded(newArt))
 }
 
 // PURCHASES & SALES

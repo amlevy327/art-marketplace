@@ -20,6 +20,7 @@ import Spinner from './Spinner'
 import ArtTokens from './ArtTokens'
 import MyArt from './MyArt'
 import Settings from './Settings'
+import CreateArt from './CreateArt'
 
 class App extends Component {
   componentWillMount() {
@@ -56,18 +57,8 @@ class App extends Component {
         <Navbar />
         <div className="content">
           <Settings />
-          <div className="card bg-dark text-white">
-            <div className="card-header">
-              Card Title
-            </div>
-            <div className="card-body">
-              <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <a href="/#" className="card-link">Card link</a>
-            </div>
-          </div>
-
+          <CreateArt />
           { this.props.showAll ? <MyArt /> : <Spinner /> }
-          
           { this.props.showAll ? <ArtTokens /> : <Spinner /> }
         </div>
       </div>

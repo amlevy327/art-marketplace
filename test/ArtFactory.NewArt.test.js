@@ -86,7 +86,7 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
       })
       
       it('emits ArtGen0 event', async () => {
-        expectEvent(result, 'ArtGen0', { id: '0', owner: artist, gen: '0', tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
+        expectEvent(result, 'NewArt', { id: '0', owner: artist, gen: '0', tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
       })
     })
   
