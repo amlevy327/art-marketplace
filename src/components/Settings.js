@@ -17,10 +17,40 @@ import {
   minLegaciesSelector,
   maxLegaciesSelector,
   contractFeePercentageLoadedSelector,
-  contractFeePercentageSelector
+  contractFeePercentageSelector,
+  accountSelector,
+  artistFeeAccountSelector,
+  artistFeeAccountLoadedSelector,
+  artFactorySelector,
+  updatedArtistFeePercentageSelector
 } from '../store/selectors'
+import {
+  artistFeePercentageChanged
+} from '../store/actions'
+import {
+  updateArtistFeePercentage
+} from '../store/interactions'
 
 function showSettings(props) {
+  const {
+    account,
+    artistFeeAccount
+  } = props
+
+  console.log('account: ', account)
+  console.log('artistFeeAccount: ', artistFeeAccount)
+  console.log('isArtist: ', account === artistFeeAccount)
+
+  if (account === artistFeeAccount) {
+    showArtistSettings(props)
+  } else {
+    showNonAristSettings(props)
+  }
+}
+
+function showNonAristSettings(props) {
+  console.log('showNonAristSettings')
+
   const {
     contractFeePercentage,
     artistFeePercentage,
@@ -33,40 +63,89 @@ function showSettings(props) {
   } = props
 
   return(
-    <tbody>
-      <tr>
-        <td>Contract Fee Percentage</td>
-        <td>{contractFeePercentage}</td>
-      </tr>
-      <tr>
-        <td>Artist Fee Percentage</td>
-        <td>{artistFeePercentage}</td>
-      </tr>
-      <tr>
-        <td>Base Art Price</td>
-        <td>{baseArtPrice}</td>
-      </tr>
-      <tr>
-        <td>Parent Multiplier Percentage</td>
-        <td>{parentMultiplierPercentage}</td>
-      </tr>
-      <tr>
-        <td>Min Parents</td>
-        <td>{minParents}</td>
-      </tr>
-      <tr>
-        <td>Max Parents</td>
-        <td>{maxParents}</td>
-      </tr>
-      <tr>
-        <td>Min Legacies</td>
-        <td>{minLegacies}</td>
-      </tr>
-      <tr>
-        <td>Max Legacies</td>
-        <td>{maxLegacies}</td>
-      </tr>
-    </tbody>
+    <table className="table table-dark table-sm small">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Contract Fee Percentage</td>
+          <td>{contractFeePercentage}</td>
+        </tr>
+        <tr>
+          <td>Artist Fee Percentage</td>
+          <td>{artistFeePercentage}</td>
+        </tr>
+        <tr>
+          <td>Base Art Price</td>
+          <td>{baseArtPrice}</td>
+        </tr>
+        <tr>
+          <td>Parent Multiplier Percentage</td>
+          <td>{parentMultiplierPercentage}</td>
+        </tr>
+        <tr>
+          <td>Min Parents</td>
+          <td>{minParents}</td>
+        </tr>
+        <tr>
+          <td>Max Parents</td>
+          <td>{maxParents}</td>
+        </tr>
+        <tr>
+          <td>Min Legacies</td>
+          <td>{minLegacies}</td>
+        </tr>
+        <tr>
+          <td>Max Legacies</td>
+          <td>{maxLegacies}</td>
+        </tr>
+      </tbody>
+    </table>
+  )
+}
+
+function showArtistSettings(props) {
+  console.log('showArtistSettings')
+
+  const {
+    contractFeePercentage,
+    artistFeePercentage,
+    baseArtPrice,
+    parentMultiplierPercentage,
+    minParents,
+    maxParents,
+    minLegacies,
+    maxLegacies,
+    dispatch,
+    account,
+    artFactory,
+    updatedArtistFeePercentage
+  } = props
+
+  return(
+    <form onSubmit={(event) => {
+      event.preventDefault()
+      console.log('submit new artist fee percentage')
+      updateArtistFeePercentage(dispatch, artFactory, updatedArtistFeePercentage, account)
+    }}>
+      <div className="form-group small">
+        <label>Artist Fee Percentage</label>
+        <div className="input-group"></div>
+          <input
+          type="text"
+          placeholder={`Current: ${artistFeePercentage}`}
+          onChange={(e) => dispatch(artistFeePercentageChanged(e.target.value))}
+          className="form-control form-control-sm bg-dark text-white"
+          required
+          />
+        </div>
+        <button type="submit" className="btn btn-primary btm-sm btn-black">Update</button>
+        {/* { showSellTotal ? <small>Total: {sellOrder.price * sellOrder.amount} ETH</small> : null } */}
+    </form>
   )
 }
 
@@ -78,15 +157,9 @@ class Settings extends Component {
           Settings
         </div>
         <div className="card-body">
-          <table className="table table-dark table-sm small">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            { this.props.showAllSettings ? showSettings(this.props) : <Spinner type="table" /> }
-          </table>
+          {/* { this.props.showAllSettings ? showNonAristSettings(this.props) : <Spinner type="table" /> } */}
+          { this.props.showAllSettings ? showArtistSettings(this.props) : <Spinner type="table" /> }
+          {/* { this.props.showAllSettings ? showSettings(this.props) : <Spinner type="table" /> } */}
         </div>
       </div>
     )
@@ -102,6 +175,7 @@ function mapStateToProps(state) {
   let maxParentsLoaded = maxParentsLoadedSelector(state)
   let minLegaciesLoaded = minLegaciesLoadedSelector(state)
   let maxLegaciesLoaded = maxLegaciesLoadedSelector(state)
+  let artistFeeAccountLoaded = artistFeeAccountLoadedSelector(state)
 
   return {
     showAllSettings:
@@ -112,7 +186,8 @@ function mapStateToProps(state) {
       && minParentsLoaded
       && maxParentsLoaded
       && minLegaciesLoaded
-      && maxLegaciesLoaded,
+      && maxLegaciesLoaded
+      && artistFeeAccountLoaded,
     contractFeePercentage: contractFeePercentageSelector(state),
     artistFeePercentage: artistFeePercentageSelector(state),
     baseArtPrice: baseArtPriceSelector(state),
@@ -120,7 +195,11 @@ function mapStateToProps(state) {
     minParents: minParentsSelector(state),
     maxParents: maxParentsSelector(state),
     minLegacies: minLegaciesSelector(state),
-    maxLegacies: maxLegaciesSelector(state)
+    maxLegacies: maxLegaciesSelector(state),
+    account: accountSelector(state),
+    artistFeeAccount: artistFeeAccountSelector(state),
+    artFactory: artFactorySelector(state),
+    updatedArtistFeePercentage: updatedArtistFeePercentageSelector(state)
   }
 }
 

@@ -82,10 +82,10 @@ class MyArt extends Component {
     return (
       <div className="card bg-dark text-white">
         <div className="card-header">
-            My Art
+          My Art
         </div>
         <div className="card-body">
-          <Tabs defaultActiveKey="art" className="bg-dark text-white">
+        <Tabs defaultActiveKey="art" className="bg-dark text-white">
             <Tab eventKey="art" title="Art" className="bg-dark">
               <table className="table table-dark table-sm small">
                 <thead>

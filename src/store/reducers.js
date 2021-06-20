@@ -24,7 +24,7 @@ function artFactory(state = {}, action) {
   switch(action.type) {
     case 'ART_FACTORY_LOADED':
       return { ...state, loaded: true, contract: action.contract }
-
+    
     case 'CONTRACT_FEE_ACCOUNT_LOADED':
       return { ...state, contractFeeAccount: { loaded: true, account: action.contractFeeAccount[0].newAddress } }
     case 'ARTIST_FEE_ACCOUNT_LOADED':
@@ -36,14 +36,14 @@ function artFactory(state = {}, action) {
     case 'ARTIST_FEE_PERCENTAGE_CHANGED':
       return { ...state, artistFeePercentage: { ...state.artistFeePercentage, newAmount: action.artistFeePercentage } }
     case 'ARTIST_FEE_PERCENTAGE_UPDATING':
-      return { ...state, artistFeePercentageUpdating: true }
+      return { ...state, artistFeePercentage: { ...state.artistFeePercentage, artistFeePercentageUpdating: true } }
     case 'ARTIST_FEE_PERCENTAGE_UPDATED':
       return {
         ...state,
-        artistFeePercentageUpdating: false,
         artistFeePercentage: {
           ...state.artistFeePercentage,
-          amount: action.artistFeePercentage
+          artistFeePercentageUpdating: false,
+          amount: action.artistFeePercentage.newAmount
         }
       }
     case 'BASE_ART_PRICE_LOADED':
@@ -66,6 +66,8 @@ function artFactory(state = {}, action) {
     
     case 'ART_FOR_SALE_LOADED':
       return { ...state, artForSale: {loaded: true, data: action.artForSale } }
+    case 'SALES_CANCELLED_LOADED':
+      return { ...state, salesCancelled: {loaded: true, data: action.salesCancelled } }
     case 'PURCHASES_LOADED':
       return { ...state, purchases: {loaded: true, data: action.purchases} }
     

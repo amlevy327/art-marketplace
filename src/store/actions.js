@@ -173,12 +173,26 @@ export function artFromOrderLoaded(artFromOrder) {
   }
 }
 
-// purchases
+// sale & purchases
 
 export function purchasesLoaded(purchases) {
   return {
     type: 'PURCHASES_LOADED',
     purchases
+  }
+}
+
+export function artForSaleLoaded(artForSale) {
+  return {
+    type: 'ART_FOR_SALE_LOADED',
+    artForSale
+  }
+}
+
+export function salesCancelledLoaded(salesCancelled) {
+  return {
+    type: 'SALES_CANCELLED_LOADED',
+    salesCancelled
   }
 }
 
@@ -215,12 +229,5 @@ export function orderCancelled(order) {
   return {
     type: 'ORDER_CANCELLED',
     order
-  }
-}
-
-export function artForSaleLoaded(artForSale) {
-  return {
-    type: 'ART_FOR_SALE_LOADED',
-    artForSale
   }
 }
