@@ -26,13 +26,30 @@ function artFactory(state = {}, action) {
       return { ...state, loaded: true, contract: action.contract }
     
     case 'CONTRACT_FEE_ACCOUNT_LOADED':
-      return { ...state, contractFeeAccount: { loaded: true, account: action.contractFeeAccount[0].newAddress } }
-    case 'ARTIST_FEE_ACCOUNT_LOADED':
-      return { ...state, artistFeeAccount: { loaded: true, account: action.artistFeeAccount[0].newAddress } }
+      return { ...state, contractFeeAccount: { loaded: true, account: action.contractFeeAccount[action.contractFeeAccount.length - 1].newAddress } }
     case 'CONTRACT_FEE_PERCENTAGE_LOADED':
-        return { ...state, contractFeePercentage: {loaded: true, amount: action.contractFeePercentage[0].newAmount} }
+        return { ...state, contractFeePercentage: {loaded: true, amount: action.contractFeePercentage[action.contractFeePercentage.length - 1].newAmount} }
+    
+    // artist fee account
+    case 'ARTIST_FEE_ACCOUNT_LOADED':
+      return { ...state, artistFeeAccount: { loaded: true, account: action.artistFeeAccount[action.artistFeeAccount.length - 1].newAddress } }
+    case 'ARTIST_FEE_ACCOUNT_CHANGED':
+      return { ...state, artistFeeAccount: { ...state.artistFeeAccount, newAccount: action.artistFeeAccount } }
+    case 'ARTIST_FEE_ACCOUNT_UPDATING':
+      return { ...state, artistFeeAccount: { ...state.artistFeeAccount, artistFeeAccountUpdating: true } }
+    case 'ARTIST_FEE_ACCOUNT_UPDATED':
+      return {
+        ...state,
+        artistFeeAccount: {
+          ...state.artistFeeAccount,
+          artistFeeAccountUpdating: false,
+          account: action.artistFeeAccount.newAddress
+        }
+      }
+
+    // artist fee percentage
     case 'ARTIST_FEE_PERCENTAGE_LOADED':
-      return { ...state, artistFeePercentage: {loaded: true, amount: action.artistFeePercentage[0].newAmount} }
+      return { ...state, artistFeePercentage: {loaded: true, amount: action.artistFeePercentage[action.artistFeePercentage.length - 1].newAmount} }
     case 'ARTIST_FEE_PERCENTAGE_CHANGED':
       return { ...state, artistFeePercentage: { ...state.artistFeePercentage, newAmount: action.artistFeePercentage } }
     case 'ARTIST_FEE_PERCENTAGE_UPDATING':
@@ -46,18 +63,108 @@ function artFactory(state = {}, action) {
           amount: action.artistFeePercentage.newAmount
         }
       }
+   
+    //  base art price
     case 'BASE_ART_PRICE_LOADED':
-      return { ...state, baseArtPrice: {loaded: true, amount: action.baseArtPrice[0].newAmount} }
+      return { ...state, baseArtPrice: {loaded: true, amount: action.baseArtPrice[action.baseArtPrice.length - 1].newAmount} }
+    case 'BASE_ART_PRICE_CHANGED':
+      return { ...state, baseArtPrice: { ...state.baseArtPrice, newAmount: action.baseArtPrice } }
+    case 'BASE_ART_PRICE_UPDATING':
+      return { ...state, baseArtPrice: { ...state.baseArtPrice, baseArtPriceUpdating: true } }
+    case 'BASE_ART_PRICE_UPDATED':
+      return {
+        ...state,
+        baseArtPrice: {
+          ...state.baseArtPrice,
+          baseArtPriceUpdating: false,
+          amount: action.baseArtPrice.newAmount
+        }
+      }
+    
+    // parent multiplier percentage
     case 'PARENT_MULTIPLIER_PERCENTAGE_LOADED':
-      return { ...state, parentMultiplierPercentage: {loaded: true, amount: action.parentMultiplierPercentage[0].newAmount} }
+      return { ...state, parentMultiplierPercentage: {loaded: true, amount: action.parentMultiplierPercentage[action.parentMultiplierPercentage.length - 1].newAmount} }
+    case 'PARENT_MULTIPLIER_PERCENTAGE_CHANGED':
+      return { ...state, parentMultiplierPercentage: { ...state.parentMultiplierPercentage, newAmount: action.parentMultiplierPercentage } }
+    case 'PARENT_MULTIPLIER_PERCENTAGE_UPDATING':
+      return { ...state, parentMultiplierPercentage: { ...state.parentMultiplierPercentage, parentMultiplierPercentageUpdating: true } }
+    case 'PARENT_MULTIPLIER_PERCENTAGE_UPDATED':
+      return {
+        ...state,
+        parentMultiplierPercentage: {
+          ...state.parentMultiplierPercentage,
+          parentMultiplierPercentageUpdating: false,
+          amount: action.parentMultiplierPercentage.newAmount
+        }
+      }
+    
+    // min parents
     case 'MIN_PARENTS_LOADED':
-      return { ...state, minParents: {loaded: true, amount: action.minParents[0].newAmount} }
+      return { ...state, minParents: {loaded: true, amount: action.minParents[action.minParents.length - 1].newAmount} }
+    case 'MIN_PARENTS_CHANGED':
+      return { ...state, minParents: { ...state.minParents, newAmount: action.minParents } }
+    case 'MIN_PARENTS_UPDATING':
+      return { ...state, minParents: { ...state.minParents, minParentsUpdating: true } }
+    case 'MIN_PARENTS_UPDATED':
+      return {
+        ...state,
+        minParents: {
+          ...state.minParents,
+          minParentsUpdating: false,
+          amount: action.minParents.newAmount
+        }
+      }
+    
+    // max parents
     case 'MAX_PARENTS_LOADED':
-      return { ...state, maxParents: {loaded: true, amount: action.maxParents[0].newAmount} }
+      return { ...state, maxParents: {loaded: true, amount: action.maxParents[action.maxParents.length - 1].newAmount} }
+    case 'MAX_PARENTS_CHANGED':
+      return { ...state, maxParents: { ...state.maxParents, newAmount: action.maxParents } }
+    case 'MAX_PARENTS_UPDATING':
+      return { ...state, maxParents: { ...state.maxParents, maxParentsUpdating: true } }
+    case 'MAX_PARENTS_UPDATED':
+      return {
+        ...state,
+        maxParents: {
+          ...state.maxParents,
+          maxParentsUpdating: false,
+          amount: action.maxParents.newAmount
+        }
+      }
+    
+    // min legacies
     case 'MIN_LEGACIES_LOADED':
-      return { ...state, minLegacies: {loaded: true, amount: action.minLegacies[0].newAmount} }
+      return { ...state, minLegacies: {loaded: true, amount: action.minLegacies[action.minLegacies.length - 1].newAmount} }
+    case 'MIN_LEGACIES_CHANGED':
+      return { ...state, minLegacies: { ...state.minLegacies, newAmount: action.minLegacies } }
+    case 'MIN_LEGACIES_UPDATING':
+      return { ...state, minLegacies: { ...state.minLegacies, minLegaciesUpdating: true } }
+    case 'MIN_LEGACIES_UPDATED':
+      return {
+        ...state,
+        minLegacies: {
+          ...state.minLegacies,
+          minLegaciesUpdating: false,
+          amount: action.minLegacies.newAmount
+        }
+      }
+    
+    // max legacies
     case 'MAX_LEGACIES_LOADED':
-      return { ...state, maxLegacies: {loaded: true, amount: action.maxLegacies[0].newAmount} }
+      return { ...state, maxLegacies: {loaded: true, amount: action.maxLegacies[action.maxLegacies.length - 1].newAmount} }
+    case 'MAX_LEGACIES_CHANGED':
+      return { ...state, maxLegacies: { ...state.maxLegacies, newAmount: action.maxLegacies } }
+    case 'MAX_LEGACIES_UPDATING':
+      return { ...state, maxLegacies: { ...state.maxLegacies, maxLegaciesUpdating: true } }
+    case 'MAX_LEGACIES_UPDATED':
+      return {
+        ...state,
+        maxLegacies: {
+          ...state.maxLegacies,
+          maxLegaciesUpdating: false,
+          amount: action.maxLegacies.newAmount
+        }
+      }
     
     case 'ART_GEN_0_LOADED':
       return { ...state, artGen0: {loaded: true, data: action.artGen0} }

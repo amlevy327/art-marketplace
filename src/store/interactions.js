@@ -25,7 +25,21 @@ import {
   artistFeePercentageUpdating,
   contractFeeAccountLoaded,
   artistFeeAccountLoaded,
-  salesCancelledLoaded
+  salesCancelledLoaded,
+  baseArtPriceUpdating,
+  baseArtPriceUpdated,
+  parentMultiplierPercentageUpdating,
+  parentMultiplierPercentageUpdated,
+  minParentsUpdating,
+  minParentsUpdated,
+  maxParentsUpdating,
+  maxParentsUpdated,
+  minLegaciesUpdating,
+  minLegaciesUpdated,
+  maxLegaciesUpdating,
+  maxLegaciesUpdated,
+  artistFeeAccountUpdating,
+  artistFeeAccountUpdated
 } from './actions'
 import Tokens from '../abis/Tokens.json'
 import ArtFactory from '../abis/ArtFactory.json'
@@ -102,6 +116,7 @@ export const loadAllSettings = async (artFactory, dispatch) => {
   // artist fee percentage
   const artistFeePercentageStream = await artFactory.getPastEvents('ArtistFeePercentage', { fromBlock: 0, toBlock: 'latest' })
   const artistFeePercentage = artistFeePercentageStream.map((event) => event.returnValues)
+  console.log('artistFeePercentageStream: ', artistFeePercentageStream)
   dispatch(artistFeePercentageLoaded(artistFeePercentage))
 
   // base art price
@@ -135,11 +150,103 @@ export const loadAllSettings = async (artFactory, dispatch) => {
   dispatch(maxLegaciesLoaded(maxLegacies))
 }
 
+// artist fee account
+export const updateArtistFeeAccount = async (dispatch, artFactory, artistFeeAccount, account) => {
+  console.log('updateArtistFeeAccount...', artistFeeAccount)
+  await artFactory.methods.changeArtistFeeAccount(artistFeeAccount).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(artistFeeAccountUpdating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+// artist fee percentage
 export const updateArtistFeePercentage = async (dispatch, artFactory, artistFeePercentage, account) => {
   console.log('updateArtistFeePercentage...')
   await artFactory.methods.changeArtistFeePercentage(artistFeePercentage).send({ from: account })
   .on('transactionHash', (hash) => {
     dispatch(artistFeePercentageUpdating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+// base art price
+export const updateBaseArtPrice = async (dispatch, artFactory, baseArtPrice, account) => {
+  console.log('updateBaseArtPrice...')
+  await artFactory.methods.changeBaseArtPrice(baseArtPrice).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(baseArtPriceUpdating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+// parent multiplier percentage
+export const updateParentMultiplierPercentage = async (dispatch, artFactory, parentMultiplierPercentage, account) => {
+  console.log('updateParentMultiplierPercentage...')
+  await artFactory.methods.changeParentMultiplierPercentage(parentMultiplierPercentage).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(parentMultiplierPercentageUpdating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+// min parents
+export const updateMinParents = async (dispatch, artFactory, minParents, account) => {
+  console.log('updateMinParents...')
+  await artFactory.methods.changeMinParents(minParents).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(minParentsUpdating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+// max parents
+export const updateMaxParents = async (dispatch, artFactory, maxParents, account) => {
+  console.log('updateMaxParents...')
+  await artFactory.methods.changeMaxParents(maxParents).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(maxParentsUpdating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+// min legacies
+export const updateMinLegacies = async (dispatch, artFactory, minLegacies, account) => {
+  console.log('updateMinLegacies...')
+  await artFactory.methods.changeMinLegacies(minLegacies).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(minLegaciesUpdating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+// max legacies
+export const updateMaxLegacies = async (dispatch, artFactory, maxLegacies, account) => {
+  console.log('updateMaxLegacies...')
+  await artFactory.methods.changeMaxLegacies(maxLegacies).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(maxLegaciesUpdating())
   })
   .on('error', (error) => {
     console.log(error)
@@ -223,31 +330,35 @@ export const subscribeToEvents = async (artFactory, dispatch) => {
     dispatch(orderCancelled(event.returnValues))
   })
 
+  artFactory.events.ArtistFeeAccount({}, (error, event) => {
+    dispatch(artistFeeAccountUpdated(event.returnValues))
+  })
+
   artFactory.events.ArtistFeePercentage({}, (error, event) => {
     dispatch(artistFeePercentageUpdated(event.returnValues))
   })
 
-  // artFactory.events.BaseArtPrice({}, (error, event) =>{
-  //   dispatch(baseArtPriceUpdated(event.returnValues))
-  // })
+  artFactory.events.BaseArtPrice({}, (error, event) =>{
+    dispatch(baseArtPriceUpdated(event.returnValues))
+  })
 
-  // artFactory.events.ParentMultiplierPercentage({}, (error, event) => {
-  //   dispatch(parentMultiplierPercentageUpdated(event.returnValues))
-  // })
+  artFactory.events.ParentMultiplierPercentage({}, (error, event) => {
+    dispatch(parentMultiplierPercentageUpdated(event.returnValues))
+  })
 
-  // artFactory.events.MinParents({}, (error, event) => {
-  //   dipatch(minParentsUpdated(event.returnValues))
-  // })
+  artFactory.events.MinParents({}, (error, event) => {
+    dispatch(minParentsUpdated(event.returnValues))
+  })
 
-  // artFactory.events.MaxParents({}, (error, event) => {
-  //   dipatch(maxParentsUpdated(event.returnValues))
-  // })
+  artFactory.events.MaxParents({}, (error, event) => {
+    dispatch(maxParentsUpdated(event.returnValues))
+  })
 
-  // artFactory.events.minLegacies({}, (error, event) => {
-  //   dispatch(minLegaciesUpdated(event.returnValues))
-  // })
+  artFactory.events.MinLegacies({}, (error, event) => {
+    dispatch(minLegaciesUpdated(event.returnValues))
+  })
 
-  // artFactory.events.MaxLegacies({}, (error, event) => {
-  //   dispatch(maxLegaciesUpdated(event.returnValues))
-  // })
+  artFactory.events.MaxLegacies({}, (error, event) => {
+    dispatch(maxLegaciesUpdated(event.returnValues))
+  })
 }

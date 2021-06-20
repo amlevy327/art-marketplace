@@ -22,13 +22,34 @@ import {
   artistFeeAccountSelector,
   artistFeeAccountLoadedSelector,
   artFactorySelector,
-  updatedArtistFeePercentageSelector
+  updatedArtistFeePercentageSelector,
+  updatedBaseArtPriceSelector,
+  updatedParentMultiplierPercentageSelector,
+  updatedMinParentsSelector,
+  updatedMaxParentsSelector,
+  updatedMinLegaciesSelector,
+  updatedMaxLegaciesSelector,
+  updatedArtistFeeAccountSelector
 } from '../store/selectors'
 import {
-  artistFeePercentageChanged
+  artistFeePercentageChanged,
+  baseArtPriceChanged,
+  parentMultiplierPercentageChanged,
+  minParentsChanged,
+  maxParentsChanged,
+  minLegaciesChanged,
+  maxLegaciesChanged,
+  artistFeeAccountChanged
 } from '../store/actions'
 import {
-  updateArtistFeePercentage
+  updateArtistFeePercentage,
+  updateBaseArtPrice,
+  updateParentMultiplierPercentage,
+  updateMinParents,
+  updateMaxParents,
+  updateMinLegacies,
+  updateMaxLegacies,
+  updateArtistFeeAccount
 } from '../store/interactions'
 
 function showSettings(props) {
@@ -112,7 +133,6 @@ function showArtistSettings(props) {
   console.log('showArtistSettings')
 
   const {
-    contractFeePercentage,
     artistFeePercentage,
     baseArtPrice,
     parentMultiplierPercentage,
@@ -123,30 +143,181 @@ function showArtistSettings(props) {
     dispatch,
     account,
     artFactory,
-    updatedArtistFeePercentage
+    updatedArtistFeePercentage,
+    updatedBaseArtPrice,
+    updatedParentMultiplierPercentage,
+    updatedMinParents,
+    updatedMaxParents,
+    updatedMinLegacies,
+    updatedMaxLegacies,
+    updatedArtistFeeAccount,
+    artistFeeAccount
   } = props
 
   return(
-    // artist fee percentage 
-    <form onSubmit={(event) => {
-      event.preventDefault()
-      console.log('submit new artist fee percentage')
-      updateArtistFeePercentage(dispatch, artFactory, updatedArtistFeePercentage, account)
-    }}>
-      <div className="form-group small">
-        <label>Artist Fee Percentage</label>
-        <div className="input-group"></div>
-          <input
-          type="text"
-          placeholder={`Current: ${artistFeePercentage}`}
-          onChange={(e) => dispatch(artistFeePercentageChanged(e.target.value))}
-          className="form-control form-control-sm bg-dark text-white"
-          required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary btm-sm btn-black">Update</button>
-        {/* { showSellTotal ? <small>Total: {sellOrder.price * sellOrder.amount} ETH</small> : null } */}
-    </form>
+    <table className="table table-dark table-sm small">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Artist Fee Account</td>
+          <td>
+            <input
+            type="text"
+            placeholder={`${artistFeeAccount}`}
+            onChange={(e) => dispatch(artistFeeAccountChanged(e.target.value))}
+            className="form-control form-control-sm bg-dark text-white"
+            required
+            />
+          </td>
+          <td
+            className="text-muted cancel-order"
+            onClick={(e) => {
+              console.log('button click: updateArtistFeeAccount')
+              updateArtistFeeAccount(dispatch, artFactory, updatedArtistFeeAccount, account)
+            }}
+          >Update</td>
+        </tr>
+        <tr>
+          <td>Artist Fee Percentage</td>
+          <td>
+            <input
+            type="text"
+            placeholder={`${artistFeePercentage}`}
+            onChange={(e) => dispatch(artistFeePercentageChanged(e.target.value))}
+            className="form-control form-control-sm bg-dark text-white"
+            required
+            />
+          </td>
+          <td
+            className="text-muted cancel-order"
+            onClick={(e) => {
+              console.log('button click: updateArtistFeePercentage')
+              updateArtistFeePercentage(dispatch, artFactory, updatedArtistFeePercentage, account)
+            }}
+          >Update</td>
+        </tr>
+        <tr>
+          <td>Base Art Price</td>
+          <td>
+            <input
+            type="text"
+            placeholder={`${baseArtPrice}`}
+            onChange={(e) => dispatch(baseArtPriceChanged(e.target.value))}
+            className="form-control form-control-sm bg-dark text-white"
+            required
+            />
+          </td>
+          <td
+            className="text-muted cancel-order"
+            onClick={(e) => {
+              console.log('button click: updateBaseArtPrice')
+              updateBaseArtPrice(dispatch, artFactory, updatedBaseArtPrice, account)
+            }}
+          >Update</td>
+        </tr>
+        <tr>
+          <td>Parent Multiplier Percentage</td>
+          <td>
+            <input
+            type="text"
+            placeholder={`${parentMultiplierPercentage}`}
+            onChange={(e) => dispatch(parentMultiplierPercentageChanged(e.target.value))}
+            className="form-control form-control-sm bg-dark text-white"
+            required
+            />
+          </td>
+          <td
+            className="text-muted cancel-order"
+            onClick={(e) => {
+              console.log('button click: updateParentMultiplierPercentage')
+              updateParentMultiplierPercentage(dispatch, artFactory, updatedParentMultiplierPercentage, account)
+            }}
+          >Update</td>
+        </tr>
+        <tr>
+          <td>Min Parents</td>
+          <td>
+            <input
+            type="text"
+            placeholder={`${minParents}`}
+            onChange={(e) => dispatch(minParentsChanged(e.target.value))}
+            className="form-control form-control-sm bg-dark text-white"
+            required
+            />
+          </td>
+          <td
+            className="text-muted cancel-order"
+            onClick={(e) => {
+              console.log('button click: updateMinParents')
+              updateMinParents(dispatch, artFactory, updatedMinParents, account)
+            }}
+          >Update</td>
+        </tr>
+        <tr>
+          <td>Max Parents</td>
+          <td>
+            <input
+            type="text"
+            placeholder={`${maxParents}`}
+            onChange={(e) => dispatch(maxParentsChanged(e.target.value))}
+            className="form-control form-control-sm bg-dark text-white"
+            required
+            />
+          </td>
+          <td
+            className="text-muted cancel-order"
+            onClick={(e) => {
+              console.log('button click: updateMaxParents')
+              updateMaxParents(dispatch, artFactory, updatedMaxParents, account)
+            }}
+          >Update</td>
+        </tr>
+        <tr>
+          <td>Min Legacies</td>
+          <td>
+            <input
+            type="text"
+            placeholder={`${minLegacies}`}
+            onChange={(e) => dispatch(minLegaciesChanged(e.target.value))}
+            className="form-control form-control-sm bg-dark text-white"
+            required
+            />
+          </td>
+          <td
+            className="text-muted cancel-order"
+            onClick={(e) => {
+              console.log('button click: updateMaxParents')
+              updateMinLegacies(dispatch, artFactory, updatedMinLegacies, account)
+            }}
+          >Update</td>
+        </tr>
+        <tr>
+          <td>Max Legacies</td>
+          <td>
+            <input
+            type="text"
+            placeholder={`${maxLegacies}`}
+            onChange={(e) => dispatch(maxLegaciesChanged(e.target.value))}
+            className="form-control form-control-sm bg-dark text-white"
+            required
+            />
+          </td>
+          <td
+            className="text-muted cancel-order"
+            onClick={(e) => {
+              console.log('button click: updateMaxParents')
+              updateMaxLegacies(dispatch, artFactory, updatedMaxLegacies, account)
+            }}
+          >Update</td>
+        </tr>
+      </tbody>
+    </table>
   )
 }
 
@@ -200,7 +371,15 @@ function mapStateToProps(state) {
     account: accountSelector(state),
     artistFeeAccount: artistFeeAccountSelector(state),
     artFactory: artFactorySelector(state),
-    updatedArtistFeePercentage: updatedArtistFeePercentageSelector(state)
+    updatedArtistFeeAccount: updatedArtistFeeAccountSelector(state),
+    updatedArtistFeePercentage: updatedArtistFeePercentageSelector(state),
+    updatedBaseArtPrice: updatedBaseArtPriceSelector(state),
+    updatedParentMultiplierPercentage: updatedParentMultiplierPercentageSelector(state),
+    updatedMinParents: updatedMinParentsSelector(state),
+    updatedMaxParents: updatedMaxParentsSelector(state),
+    updatedMinLegacies: updatedMinLegaciesSelector(state),
+    updatedMaxLegacies: updatedMaxLegaciesSelector(state),
+    updatedArtistFeeAccount: updatedArtistFeeAccountSelector(state)
   }
 }
 

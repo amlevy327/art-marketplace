@@ -45,6 +45,15 @@ export function contractFeeAccountLoaded(contractFeeAccount) {
   }
 }
 
+export function contractFeePercentageLoaded(contractFeePercentage) {
+  return {
+    type: 'CONTRACT_FEE_PERCENTAGE_LOADED',
+    contractFeePercentage
+  }
+}
+
+// artist fee account
+
 export function artistFeeAccountLoaded(artistFeeAccount) {
   return {
     type: 'ARTIST_FEE_ACCOUNT_LOADED',
@@ -52,12 +61,27 @@ export function artistFeeAccountLoaded(artistFeeAccount) {
   }
 }
 
-export function contractFeePercentageLoaded(contractFeePercentage) {
+export function artistFeeAccountChanged(artistFeeAccount) {
   return {
-    type: 'CONTRACT_FEE_PERCENTAGE_LOADED',
-    contractFeePercentage
+    type: 'ARTIST_FEE_ACCOUNT_CHANGED',
+    artistFeeAccount
   }
 }
+
+export function artistFeeAccountUpdating() {
+  return {
+    type: 'ARTIST_FEE_ACCOUNT_UPDATING'
+  }
+}
+
+export function artistFeeAccountUpdated(artistFeeAccount) {
+  return {
+    type: 'ARTIST_FEE_ACCOUNT_UPDATED',
+    artistFeeAccount
+  }
+}
+
+// artist fee percentage
 
 export function artistFeePercentageLoaded(artistFeePercentage) {
   return {
@@ -86,12 +110,36 @@ export function artistFeePercentageUpdated(artistFeePercentage) {
   }
 }
 
+// base art price
+
 export function baseArtPriceLoaded(baseArtPrice) {
   return {
     type: 'BASE_ART_PRICE_LOADED',
     baseArtPrice
   }
 }
+
+export function baseArtPriceChanged(baseArtPrice) {
+  return {
+    type: 'BASE_ART_PRICE_CHANGED',
+    baseArtPrice
+  }
+}
+
+export function baseArtPriceUpdating() {
+  return {
+    type: 'BASE_ART_PRICE_UPDATING'
+  }
+}
+
+export function baseArtPriceUpdated(baseArtPrice) {
+  return {
+    type: 'BASE_ART_PRICE_UPDATED',
+    baseArtPrice
+  }
+}
+
+// parent multiplier percentage
 
 export function parentMultiplierPercentageLoaded(parentMultiplierPercentage) {
   return {
@@ -100,12 +148,56 @@ export function parentMultiplierPercentageLoaded(parentMultiplierPercentage) {
   }
 }
 
+export function parentMultiplierPercentageChanged(parentMultiplierPercentage) {
+  return {
+    type: 'PARENT_MULTIPLIER_PERCENTAGE_CHANGED',
+    parentMultiplierPercentage
+  }
+}
+
+export function parentMultiplierPercentageUpdating() {
+  return {
+    type: 'PARENT_MULTIPLIER_PERCENTAGE_UPDATING'
+  }
+}
+
+export function parentMultiplierPercentageUpdated(parentMultiplierPercentage) {
+  return {
+    type: 'PARENT_MULTIPLIER_PERCENTAGE_UPDATED',
+    parentMultiplierPercentage
+  }
+}
+
+// min parents
+
 export function minParentsLoaded(minParents) {
   return {
     type: 'MIN_PARENTS_LOADED',
     minParents
   }
 }
+
+export function minParentsChanged(minParents) {
+  return {
+    type: 'MIN_PARENTS_CHANGED',
+    minParents
+  }
+}
+
+export function minParentsUpdating() {
+  return {
+    type: 'MIN_PARENTS_UPDATING'
+  }
+}
+
+export function minParentsUpdated(minParents) {
+  return {
+    type: 'MIN_PARENTS_UPDATED',
+    minParents
+  }
+}
+
+// max parents
 
 export function maxParentsLoaded(maxParents) {
   return {
@@ -114,12 +206,56 @@ export function maxParentsLoaded(maxParents) {
   }
 }
 
+export function maxParentsChanged(maxParents) {
+  return {
+    type: 'MAX_PARENTS_CHANGED',
+    maxParents
+  }
+}
+
+export function maxParentsUpdating() {
+  return {
+    type: 'MAX_PARENTS_UPDATING'
+  }
+}
+
+export function maxParentsUpdated(maxParents) {
+  return {
+    type: 'MAX_PARENTS_UPDATED',
+    maxParents
+  }
+}
+
+// min legacies
+
 export function minLegaciesLoaded(minLegacies) {
   return {
     type: 'MIN_LEGACIES_LOADED',
     minLegacies
   }
 }
+
+export function minLegaciesChanged(minLegacies) {
+  return {
+    type: 'MIN_LEGACIES_CHANGED',
+    minLegacies
+  }
+}
+
+export function minLegaciesUpdating() {
+  return {
+    type: 'MIN_LEGACIES_UPDATING'
+  }
+}
+
+export function minLegaciesUpdated(minLegacies) {
+  return {
+    type: 'MIN_LEGACIES_UPDATED',
+    minLegacies
+  }
+}
+
+// max legacies
 
 export function maxLegaciesLoaded(maxLegacies) {
   return {
@@ -128,34 +264,25 @@ export function maxLegaciesLoaded(maxLegacies) {
   }
 }
 
+export function maxLegaciesChanged(maxLegacies) {
+  return {
+    type: 'MAX_LEGACIES_CHANGED',
+    maxLegacies
+  }
+}
 
-// artFactory.events.ArtistFeePercentage({}, (error, event) => {
-//   dispatch(artistFeePercentageUpdated(event.returnValues))
-// })
+export function maxLegaciesUpdating() {
+  return {
+    type: 'MAX_LEGACIES_UPDATING'
+  }
+}
 
-// artFactory.events.BaseArtPrice({}, (error, event) =>{
-//   dispatch(baseArtPriceUpdated(event.returnValues))
-// })
-
-// artFactory.events.ParentMultiplierPercentage({}, (error, event) => {
-//   dispatch(parentMultiplierPercentageUpdated(event.returnValues))
-// })
-
-// artFactory.events.MinParents({}, (error, event) => {
-//   dipatch(minParentsUpdated(event.returnValues))
-// })
-
-// artFactory.events.MaxParents({}, (error, event) => {
-//   dipatch(maxParentsUpdated(event.returnValues))
-// })
-
-// artFactory.events.minLegacies({}, (error, event) => {
-//   dispatch(minLegaciesUpdated(event.returnValues))
-// })
-
-// artFactory.events.MaxLegacies({}, (error, event) => {
-//   dispatch(maxLegaciesUpdated(event.returnValues))
-// })
+export function maxLegaciesUpdated(maxLegacies) {
+  return {
+    type: 'MAX_LEGACIES_UPDATED',
+    maxLegacies
+  }
+}
 
 // art
 
