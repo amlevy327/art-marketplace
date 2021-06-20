@@ -10,7 +10,8 @@ import {
   loadAllOrders,
   loadAllSettings,
   loadArtForSale,
-  subscribeToEvents
+  subscribeToEvents,
+  loadSalesCancelled
 } from '../store/interactions'
 import { allLoadedSelector } from '../store/selectors'
 import './App.css'
@@ -43,8 +44,9 @@ class App extends Component {
     await loadAllArt(artFactory, dispatch) 
     await loadAllSettings(artFactory, dispatch)
     await loadAllOrders(artFactory, dispatch)
-    await loadPurchases(artFactory, dispatch)
     await loadArtForSale(artFactory, dispatch)
+    await loadSalesCancelled(artFactory, dispatch)
+    await loadPurchases(artFactory, dispatch)
     await subscribeToEvents(artFactory, dispatch)
   }
 
@@ -54,27 +56,18 @@ class App extends Component {
         <Navbar />
         <div className="content">
           <Settings />
-          { this.props.showAll ? <MyArt /> : <Spinner /> }
-          <div className="vertical-split">
-            <div className="card bg-dark text-white">
-              <div className="card-header">
-                Card Title
-              </div>
-              <div className="card-body">
-                <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="/#" className="card-link">Card link</a>
-              </div>
+          <div className="card bg-dark text-white">
+            <div className="card-header">
+              Card Title
             </div>
-            <div className="card bg-dark text-white">
-              <div className="card-header">
-                Card Title
-              </div>
-              <div className="card-body">
-                <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="/#" className="card-link">Card link</a>
-              </div>
+            <div className="card-body">
+              <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <a href="/#" className="card-link">Card link</a>
             </div>
           </div>
+
+          { this.props.showAll ? <MyArt /> : <Spinner /> }
+          
           { this.props.showAll ? <ArtTokens /> : <Spinner /> }
         </div>
       </div>

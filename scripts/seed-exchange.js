@@ -171,6 +171,10 @@ module.exports = async function(callback) {
     await wait(1)
     console.log('New art purchase gen0: id = 11')
 
+    await artFactory.purchase(tokens.address, '14', { from: buyer1, value: GEN0_TOTAL_PRICE })
+    await wait(1)
+    console.log('New art purchase gen0: id = 12')
+
     // create orders
 
     await artFactory.createOrder([0], 2, { from: buyer1, value: TOTAL_PRICE })
@@ -222,6 +226,14 @@ module.exports = async function(callback) {
     await wait(1)
     console.log('Art id=13 for sale: id = 0')
 
+    await artFactory.putUpForSale(tokens.address, 14, 40000, { from: buyer1 })
+    await wait(1)
+    console.log('Art id=14 for sale: id = 1')
+
+    // cancel sale
+    artFactory.cancelSale(14, { from: buyer1 } )
+    await wait(1)
+    console.log('Sale cancelled art id = 14: id = 0')
 
   } catch (error) {
     console.log(error)

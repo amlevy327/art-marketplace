@@ -31,7 +31,7 @@ export const contractFeeAccountSelector = createSelector(contractFeeAccount, cfa
 const artistFeeAccountLoaded = state => get(state, 'artFactory.artistFeeAccount.loaded', false)
 export const artistFeeAccountLoadedSelector = createSelector(artistFeeAccountLoaded, l => l)
 
-const artistFeeAccount = state => get(state, 'artFactory.artistFeeAccount.newAddress', null)
+const artistFeeAccount = state => get(state, 'artFactory.artistFeeAccount.account', null)
 export const artistFeeAccountSelector = createSelector(artistFeeAccount, afa => afa)
 
 const contractFeePercentageLoaded = state => get(state, 'artFactory.contractFeePercentage.loaded', false)
@@ -45,6 +45,9 @@ export const artistFeePercentageLoadedSelector = createSelector(artistFeePercent
 
 const artistFeePercentage = state => get(state, 'artFactory.artistFeePercentage.amount', null)
 export const artistFeePercentageSelector = createSelector(artistFeePercentage, afp => afp)
+
+const updatedArtistFeePercentage = state => get(state, 'artFactory.artistFeePercentage.newAmount', null)
+export const updatedArtistFeePercentageSelector = createSelector(updatedArtistFeePercentage, uafp => uafp)
 
 const baseArtPriceLoaded = state => get(state, 'artFactory.baseArtPrice.loaded', false)
 export const baseArtPriceLoadedSelector = createSelector(baseArtPriceLoaded, l => l)
@@ -82,7 +85,19 @@ export const maxLegaciesLoadedSelector = createSelector(maxLegaciesLoaded, l => 
 const maxLegacies = state => get(state, 'artFactory.maxLegacies.amount', null)
 export const maxLegaciesSelector = createSelector(maxLegacies, ml => ml)
 
-// PURCHASES
+// SALES & PURCHASES
+
+// const salesCancelledLoaded = state => get(state, 'artFactory.sale.loaded', false)
+// export const purchasesLoadedSelector = createSelector(purchasesLoaded, pl => pl)
+
+// const purchases = state => get(state, 'artFactory.purchases.data', [])
+// export const purchasesSelector = createSelector(purchases, p => p)
+
+// const purchasesLoaded = state => get(state, 'artFactory.purchases.loaded', false)
+// export const purchasesLoadedSelector = createSelector(purchasesLoaded, pl => pl)
+
+// const purchases = state => get(state, 'artFactory.purchases.data', [])
+// export const purchasesSelector = createSelector(purchases, p => p)
 
 const purchasesLoaded = state => get(state, 'artFactory.purchases.loaded', false)
 export const purchasesLoadedSelector = createSelector(purchasesLoaded, pl => pl)

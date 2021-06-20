@@ -24,7 +24,8 @@ import {
   artistFeePercentageUpdated,
   artistFeePercentageUpdating,
   contractFeeAccountLoaded,
-  artistFeeAccountLoaded
+  artistFeeAccountLoaded,
+  salesCancelledLoaded
 } from './actions'
 import Tokens from '../abis/Tokens.json'
 import ArtFactory from '../abis/ArtFactory.json'
@@ -135,7 +136,8 @@ export const loadAllSettings = async (artFactory, dispatch) => {
 }
 
 export const updateArtistFeePercentage = async (dispatch, artFactory, artistFeePercentage, account) => {
-  await artFactory.updateArtistFeePercentage(artistFeePercentage).send({ from: account })
+  console.log('updateArtistFeePercentage...')
+  await artFactory.methods.changeArtistFeePercentage(artistFeePercentage).send({ from: account })
   .on('transactionHash', (hash) => {
     dispatch(artistFeePercentageUpdating())
   })
@@ -175,6 +177,13 @@ export const loadArtForSale = async (artFactory, dispatch) => {
   console.log('artForSaleStream: ', artForSaleStream)
   const artForSale = artForSaleStream.map((event) => event.returnValues)
   dispatch(artForSaleLoaded(artForSale))
+}
+
+export const loadSalesCancelled = async (artFactory, dispatch) => {
+  const salesCancelledStream = await artFactory.getPastEvents('SaleCancel', { fromBlock: 0, toBlock: 'latest' })
+  console.log('salesCancelledStream: ', salesCancelledStream)
+  const salesCancelled = salesCancelledStream.map((event) => event.returnValues)
+  dispatch(salesCancelledLoaded(salesCancelled))
 }
 
 // ORDERS
