@@ -127,6 +127,7 @@ function showArtistSettings(props) {
   } = props
 
   return(
+    // artist fee percentage 
     <form onSubmit={(event) => {
       event.preventDefault()
       console.log('submit new artist fee percentage')
