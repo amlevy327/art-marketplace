@@ -166,8 +166,50 @@ function artFactory(state = {}, action) {
         }
       }
     
+    // new art
     case 'NEW_ART_LOADED':
       return { ...state, newArt: {loaded: true, data: action.newArt} }
+    case 'NEW_ART_GEN_0_TOKEN_URI_CHANGED':
+      return { ...state, newArtGen0: { ...state.newArtGen0, tokenURI: action.tokenURI } }
+    case 'NEW_ART_GEN_0_NAME_CHANGED':
+      return { ...state, newArtGen0: { ...state.newArtGen0, name: action.name } }
+    case 'NEW_ART_GEN_0_CREATING':
+      return { ...state, newArtGen0: { ...state.newArtGen0, tokenURI: null, name: null, creating: true} }
+    case 'NEW_ART_CREATED':
+      return {
+        ...state,
+        newArt: {
+          ...state.newArt,
+          data: [
+            ...state.newArt.data,
+            action.newArt
+          ]
+        },
+        newArtGen0: {
+          ...state.newArtGen0,
+          creating: false
+        },
+        newArtFromOrder: {
+          ...state.newArtFromOrder,
+          creating: false
+        }
+      }
+    case 'NEW_ART_FROM_ORDER_ORDER_ID_CHANGED':
+      return { ...state, newArtFromOrder: { ...state.newArtFromOrder, orderID: action.orderID } }
+    case 'NEW_ART_FROM_ORDER_TOKEN_URI_CHANGED':
+      return { ...state, newArtFromOrder: { ...state.newArtFromOrder, tokenURI: action.tokenURI } }
+    case 'NEW_ART_FROM_ORDER_NAME_CHANGED':
+      return { ...state, newArtFromOrder: { ...state.newArtFromOrder, name: action.name } }
+    case 'NEW_ART_FROM_ORDER_GEN_CHANGED':
+      return { ...state, newArtFromOrder: { ...state.newArtFromOrder, gen: action.gen } }
+    case 'NEW_ART_FROM_ORDER_PARENTS_CHANGED':
+      return { ...state, newArtFromOrder: { ...state.newArtFromOrder, parents: action.parents } }
+    case 'NEW_ART_FROM_ORDER_SIBLINGS_CHANGED':
+      return { ...state, newArtFromOrder: { ...state.newArtFromOrder, siblings: action.siblings } }
+    case 'NEW_ART_FROM_ORDER_BUYER_CHANGED':
+      return { ...state, newArtFromOrder: { ...state.newArtFromOrder, buyer: action.buyer } }
+    case 'NEW_ART_FROM_ORDER_CREATING':
+      return { ...state, newArtFromOrder: { ...state.newArtFromOrder, tokenURI: null, name: null, creating: true} }
     
     case 'ART_FOR_SALE_LOADED':
       return { ...state, artForSale: {loaded: true, data: action.artForSale } }

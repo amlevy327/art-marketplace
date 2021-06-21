@@ -190,6 +190,37 @@ const addCurrentOwner = (art, allPurchases) => {
   })
 }
 
+// new art - gen 0
+
+const updatedNewArtGen0TokenURI = state => get(state, 'artFactory.newArtGen0.tokenURI', null)
+export const updatedNewArtGen0TokenURISelector = createSelector(updatedNewArtGen0TokenURI, turi => turi)
+
+const updatedNewArtGen0Name = state => get(state, 'artFactory.newArtGen0.name', null)
+export const updatedNewArtGen0NameSelector = createSelector(updatedNewArtGen0Name, n => n)
+
+// new art - from order
+
+const updatedNewArtFromOrderOrderID = state => get(state, 'artFactory.newArtFromOrder.orderID', null)
+export const updatedNewArtFromOrderOrderIDSelector = createSelector(updatedNewArtFromOrderOrderID, oid => oid)
+
+const updatedNewArtFromOrderTokenURI = state => get(state, 'artFactory.newArtFromOrder.tokenURI', null)
+export const updatedNewArtFromOrderTokenURISelector = createSelector(updatedNewArtFromOrderTokenURI, turi => turi)
+
+const updatedNewArtFromOrderName = state => get(state, 'artFactory.newArtFromOrder.name', null)
+export const updatedNewArtFromOrderNameSelector = createSelector(updatedNewArtFromOrderName, n => n)
+
+const updatedNewArtFromOrderGen = state => get(state, 'artFactory.newArtFromOrder.gen', null)
+export const updatedNewArtFromOrderGenSelector = createSelector(updatedNewArtFromOrderGen, g => g)
+
+const updatedNewArtFromOrderParents = state => get(state, 'artFactory.newArtFromOrder.parents', null)
+export const updatedNewArtFromOrderParentsSelector = createSelector(updatedNewArtFromOrderParents, p => p)
+
+const updatedNewArtFromOrderSiblings = state => get(state, 'artFactory.newArtFromOrder.siblings', null)
+export const updatedNewArtFromOrderSiblingsSelector = createSelector(updatedNewArtFromOrderSiblings, s => s)
+
+const updatedNewArtFromOrderBuyer = state => get(state, 'artFactory.newArtFromOrder.buyer', null)
+export const updatedNewArtFromOrderBuyerSelector = createSelector(updatedNewArtFromOrderBuyer, b => b)
+
 // ORDERS
 
 const allOrdersLoaded = state => get(state, 'artFactory.allOrders.loaded', false)
@@ -237,12 +268,11 @@ export const myOpenOrdersSelector = createSelector(allOpenOrders, account, (orde
 
 const allAcceptedOrders = state => {
   const accepted = acceptedOrders(state)
-  const allArtwork = allArt(state)
-  const filled = allArtwork.filter((o) => o.orderID === 999999)
+  const filled = allArt(state)
 
   const allAcceptedOrders = reject(accepted, (order) => {
-    const orderFilled = filled.some((o) => o.id === order.id)
-    return orderFilled
+    const artCreated = filled.some((o) => o.orderID === order.id)
+    return artCreated
   })
   
   return allAcceptedOrders

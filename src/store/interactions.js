@@ -38,7 +38,10 @@ import {
   maxLegaciesUpdating,
   maxLegaciesUpdated,
   artistFeeAccountUpdating,
-  artistFeeAccountUpdated
+  artistFeeAccountUpdated,
+  newArtGen0Creating,
+  newArtFromOrderCreating,
+  newArtCreated
 } from './actions'
 import Tokens from '../abis/Tokens.json'
 import ArtFactory from '../abis/ArtFactory.json'
@@ -263,6 +266,52 @@ export const loadAllArt = async (artFactory, dispatch) => {
   dispatch(newArtLoaded(newArt))
 }
 
+export const createNewArtGen0 = async (dispatch, artFactory, tokens, tokenURI, name, account) => {
+  console.log('createNewArtGen0...')
+  await artFactory.methods.createArtGen0(tokens.options.address, tokenURI, name).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(newArtGen0Creating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+export const createArtFromOrder = async (dispatch, artFactory, tokens, orderID, tokenURI, name, gen, parents, siblings, buyer, account) => {
+  console.log('createArtFromOrder...')
+  console.log('artFactory: ', artFactory)
+  console.log('tokens: ', tokens)
+  console.log('orderID: ', orderID)
+  console.log('tokenURI: ', tokenURI)
+  console.log('name: ', name)
+  console.log('gen: ', gen)
+  console.log('parents: ', parents)
+  console.log('siblings: ', siblings)
+  console.log('buyer: ', buyer)
+  console.log('account: ', account)
+
+  const parentsTest = parents.split(',')
+
+  const parentsArray = []
+  for(let i=0; i<parents.length; i++) {
+    if(parentsTest[i]) {
+      parentsArray.push(parentsTest[i])
+    }
+    // parentsArray.push(parentsTest[i])
+  }
+  console.log('parentsArray: ', parentsArray)
+
+  await artFactory.methods.createArtFromOrder(tokens.options.address, orderID, tokenURI, name, gen, parentsArray, parentsArray, buyer).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(newArtFromOrderCreating())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
 // PURCHASES & SALES
 
 export const loadPurchases = async (artFactory, dispatch) => {
@@ -319,6 +368,10 @@ export const cancelOpenOrder = async (dispatch, artFactory, order, account) => {
 // EVENTS
 
 export const subscribeToEvents = async (artFactory, dispatch) => {
+  artFactory.events.NewArt({}, (error, event) => {
+    dispatch(newArtCreated(event.returnValues))
+  })
+
   artFactory.events.Cancel({}, (error, event) => {
     dispatch(orderCancelled(event.returnValues))
   })
