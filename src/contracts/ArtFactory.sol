@@ -209,7 +209,7 @@ contract ArtFactory is Ownable {
 
     require(Tokens(_tokensAddress).createToken(_buyer, _id, _tokenURI));
     
-    emit NewArt(_id, _orderID, msg.sender, _gen, _tokenURI, _name, false, _parents, _siblings, block.timestamp);
+    emit NewArt(_id, _orderID, _buyer, _gen, _tokenURI, _name, false, _parents, _siblings, block.timestamp);
   }
 
   function putUpForSale(address _tokenAddress, uint256 _id, uint256 _price) public {

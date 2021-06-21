@@ -293,6 +293,88 @@ export function newArtLoaded(newArt) {
   }
 }
 
+export function newArtGen0TokenURIChanged(tokenURI) {
+  return {
+    type: 'NEW_ART_GEN_0_TOKEN_URI_CHANGED',
+    tokenURI
+  }
+}
+
+export function newArtGen0NameChanged(name) {
+  return {
+    type: 'NEW_ART_GEN_0_NAME_CHANGED',
+    name
+  }
+}
+
+export function newArtGen0Creating() {
+  return {
+    type: 'NEW_ART_GEN_0_CREATING',
+  }
+}
+
+export function newArtFromOrderCreating() {
+  return {
+    type: 'NEW_ART_FROM_ORDER_CREATING',
+  }
+}
+
+export function newArtFromOrderOrderIDChanged(orderID) {
+  return {
+    type: 'NEW_ART_FROM_ORDER_ORDER_ID_CHANGED',
+    orderID
+  }
+}
+
+export function newArtFromOrderTokenURIChanged(tokenURI) {
+  return {
+    type: 'NEW_ART_FROM_ORDER_TOKEN_URI_CHANGED',
+    tokenURI
+  }
+}
+
+export function newArtFromOrderNameChanged(name) {
+  return {
+    type: 'NEW_ART_FROM_ORDER_NAME_CHANGED',
+    name
+  }
+}
+
+export function newArtFromOrderGenChanged(gen) {
+  return {
+    type: 'NEW_ART_FROM_ORDER_GEN_CHANGED',
+    gen
+  }
+}
+
+export function newArtFromOrderParentsChanged(parents) {
+  return {
+    type: 'NEW_ART_FROM_ORDER_PARENTS_CHANGED',
+    parents
+  }
+}
+
+export function newArtFromOrderSiblingsChanged(siblings) {
+  return {
+    type: 'NEW_ART_FROM_ORDER_SIBLINGS_CHANGED',
+    siblings
+  }
+}
+
+export function newArtFromOrderBuyerChanged(buyer) {
+  return {
+    type: 'NEW_ART_FROM_ORDER_BUYER_CHANGED',
+    buyer
+  }
+}
+
+export function newArtCreated(newArt) {
+  return {
+    type: 'NEW_ART_CREATED',
+    newArt
+  }
+}
+
 // sale & purchases
 
 export function purchasesLoaded(purchases) {
