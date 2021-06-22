@@ -122,14 +122,10 @@ const showBalance = (props) => {
   )
 }
 
-class ArtistProfile extends Component {
+class ProfileArtist extends Component {
   componentWillMount() {
     this.loadBlockchainData()
   }
-
-  // componentWillReceiveProps() {
-  //   this.loadBlockchainData()
-  // } 
   
   async loadBlockchainData() {
     const { dispatch, web3, artFactory, account } = this.props
@@ -218,4 +214,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(ArtistProfile)
+export default connect(mapStateToProps)(ProfileArtist)

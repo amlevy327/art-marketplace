@@ -1,27 +1,49 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import './App.css'
 import {
   loadAccount,
   loadArtFactory,
   loadTokens,
   loadWeb3,
-  loadAllArt,
-  loadPurchases,
-  loadAllOrders,
-  loadAllSettings,
-  loadArtForSale,
-  subscribeToEvents,
-  loadSalesCancelled
+  loadArtistFeeAccount
 } from '../store/interactions'
-import { allLoadedSelector } from '../store/selectors'
-import './App.css'
+import {
+  accountSelector,
+  allStartupLoadedSelector,
+  artistFeeAccountLoadedSelector,
+  artistFeeAccountSelector
+} from '../store/selectors'
+
 import Navbar from './Navbar'
 import Spinner from './Spinner'
-import ArtTokens from './ArtTokens'
-import MyArt from './MyArt'
-import Settings from './Settings'
-import CreateArt from './CreateArt'
-import ArtistProfile from './ArtistProfile'
+import ContentArtist from './ContentArtist'
+import ContentNonArtist from './ContentNonArtist'
+
+const showContent = (props) => {
+  const {
+    account,
+    artistFeeAccount
+  } = props
+
+  console.log('account: ', account)
+  console.log('artistFeeAccount: ', artistFeeAccount)
+  console.log('isArtist: ', account===artistFeeAccount)
+
+  if(account === artistFeeAccount){
+    return(
+      <div className="content">
+        <ContentArtist />
+      </div>
+    )
+  } else {
+    return(
+      <div className="content">
+        <ContentNonArtist />
+      </div>
+    )
+  }
+}
 
 class App extends Component {
   componentWillMount() {
@@ -41,43 +63,28 @@ class App extends Component {
     if(!artFactory) {
       window.alert('Token smart contract not detected on the current network. Please select another network with Metamask.')
     }
-
-    // move this to content
-    await loadAllArt(artFactory, dispatch) 
-    await loadAllSettings(artFactory, dispatch)
-    await loadAllOrders(artFactory, dispatch)
-    await loadArtForSale(artFactory, dispatch)
-    await loadSalesCancelled(artFactory, dispatch)
-    await loadPurchases(artFactory, dispatch)
-    await subscribeToEvents(artFactory, dispatch)
+    
+    await loadArtistFeeAccount(artFactory, dispatch)
   }
 
   render() {
     return (
       <div>
         <Navbar />
-        <div className="content">
-          <Settings />
-          <CreateArt />
-          { this.props.showAll ? <ArtistProfile /> : <Spinner type="table"/> }
-          {/* { this.props.showAll ? <MyArt /> : <Spinner type="table"/> } */}
-          { this.props.showAll ? <ArtTokens /> : <Spinner type="table"/> }
-        </div>
+        { this.props.showAll ? showContent(this.props) : <Spinner /> }
       </div>
-    );
+    )
   }
-
-  // render() {
-  //   return (
-  //   <div>
-  //     <Navbar />
-  //   </div>)
-  // }
 }
 
 function mapStateToProps(state) {
+  const allStartupLoaded = allStartupLoadedSelector(state)
+  const artistFeeAccountLoaded = artistFeeAccountLoadedSelector(state)
+  
   return {
-    showAll: allLoadedSelector(state)
+    showAll: allStartupLoaded && artistFeeAccountLoaded,
+    account: accountSelector(state),
+    artistFeeAccount: artistFeeAccountSelector(state)
   }
 }
 

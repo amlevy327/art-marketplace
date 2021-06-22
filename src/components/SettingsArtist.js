@@ -52,82 +52,6 @@ import {
   updateArtistFeeAccount
 } from '../store/interactions'
 
-function showSettings(props) {
-  const {
-    account,
-    artistFeeAccount
-  } = props
-
-  console.log('account: ', account)
-  console.log('artistFeeAccount: ', artistFeeAccount)
-  console.log('isArtist: ', account === artistFeeAccount)
-
-  if (account === artistFeeAccount) {
-    showArtistSettings(props)
-  } else {
-    showNonAristSettings(props)
-  }
-}
-
-function showNonAristSettings(props) {
-  console.log('showNonAristSettings')
-
-  const {
-    contractFeePercentage,
-    artistFeePercentage,
-    baseArtPrice,
-    parentMultiplierPercentage,
-    minParents,
-    maxParents,
-    minLegacies,
-    maxLegacies
-  } = props
-
-  return(
-    <table className="table table-dark table-sm small">
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Contract Fee Percentage</td>
-          <td>{contractFeePercentage}</td>
-        </tr>
-        <tr>
-          <td>Artist Fee Percentage</td>
-          <td>{artistFeePercentage}</td>
-        </tr>
-        <tr>
-          <td>Base Art Price</td>
-          <td>{baseArtPrice}</td>
-        </tr>
-        <tr>
-          <td>Parent Multiplier Percentage</td>
-          <td>{parentMultiplierPercentage}</td>
-        </tr>
-        <tr>
-          <td>Min Parents</td>
-          <td>{minParents}</td>
-        </tr>
-        <tr>
-          <td>Max Parents</td>
-          <td>{maxParents}</td>
-        </tr>
-        <tr>
-          <td>Min Legacies</td>
-          <td>{minLegacies}</td>
-        </tr>
-        <tr>
-          <td>Max Legacies</td>
-          <td>{maxLegacies}</td>
-        </tr>
-      </tbody>
-    </table>
-  )
-}
 
 function showArtistSettings(props) {
   console.log('showArtistSettings')
@@ -321,7 +245,7 @@ function showArtistSettings(props) {
   )
 }
 
-class Settings extends Component {
+class SettingsArtist extends Component {
   render() {
     return (
       <div className="card bg-dark text-white">
@@ -329,9 +253,7 @@ class Settings extends Component {
           Settings
         </div>
         <div className="card-body">
-          {/* { this.props.showAllSettings ? showNonAristSettings(this.props) : <Spinner type="table" /> } */}
           { this.props.showAllSettings ? showArtistSettings(this.props) : <Spinner type="table" /> }
-          {/* { this.props.showAllSettings ? showSettings(this.props) : <Spinner type="table" /> } */}
         </div>
       </div>
     )
@@ -383,4 +305,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(Settings)
+export default connect(mapStateToProps)(SettingsArtist)

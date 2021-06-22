@@ -24,7 +24,7 @@ function artFactory(state = {}, action) {
   switch(action.type) {
     case 'ART_FACTORY_LOADED':
       return { ...state, loaded: true, contract: action.contract }
-    
+      
     case 'CONTRACT_FEE_ACCOUNT_LOADED':
       return { ...state, contractFeeAccount: { loaded: true, account: action.contractFeeAccount[action.contractFeeAccount.length - 1].newAddress } }
     case 'CONTRACT_FEE_PERCENTAGE_LOADED':
