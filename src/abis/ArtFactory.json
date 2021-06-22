@@ -61588,12 +61588,12 @@
         }
       },
       "links": {},
-      "address": "0xE7E71c49542A03f6b189D15E8a08FE22D0F21531",
-      "transactionHash": "0xf70eac343e15ea7ca29c5b3af3a115c2dc2712f6e5c3dab57e11b55b19d47d37"
+      "address": "0xc505BF20e9492a369e4fc448D41E0546cf7890c4",
+      "transactionHash": "0x675e3fb9a8bdeb6e16e0a834b75863b4e8ca13c7942d2cde1254e1f5f3dfb55b"
     }
   },
   "schemaVersion": "3.4.1",
-  "updatedAt": "2021-06-22T15:44:32.384Z",
+  "updatedAt": "2021-06-22T18:44:56.434Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
