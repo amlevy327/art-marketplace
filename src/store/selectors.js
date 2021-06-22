@@ -285,6 +285,14 @@ export const myAcceptedOrdersSelector = createSelector(allAcceptedOrders, accoun
   return orders
 }) 
 
+// BALANCES
+
+const balanceLoaded = state => get(state, 'artFactory.balance.loaded', false)
+export const balanceLoadedSelector = createSelector(balanceLoaded, l => l)
+
+const balance = state => get(state, 'artFactory.balance.amount', null)
+export const balanceSelector = createSelector(balance, b => b)
+
 // REFACTOR
 
 export const allLoadedSelector = createSelector(

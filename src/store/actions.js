@@ -433,3 +433,39 @@ export function orderCancelled(order) {
     order
   }
 }
+
+
+export function orderAccepted(order) {
+  return {
+    type: 'ORDER_ACCEPTED',
+    order
+  }
+}
+
+export function orderAccepting() {
+  return {
+    type: 'ORDER_ACCEPTING'
+  }
+}
+
+// BALANCES
+
+export function balanceLoaded(accountBalance) {
+  return {
+      type: 'BALANCE_LOADED',
+      accountBalance
+  }
+}
+
+export function balanceLoading() {
+  return {
+      type: 'BALANCE_LOADING'
+  }
+}
+
+export function withdrawCompleted(withdraw) {
+  return {
+      type: 'WITHDRAW_COMPLETED',
+      withdraw
+  }
+}

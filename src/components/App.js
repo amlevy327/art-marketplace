@@ -21,6 +21,7 @@ import ArtTokens from './ArtTokens'
 import MyArt from './MyArt'
 import Settings from './Settings'
 import CreateArt from './CreateArt'
+import ArtistProfile from './ArtistProfile'
 
 class App extends Component {
   componentWillMount() {
@@ -58,8 +59,9 @@ class App extends Component {
         <div className="content">
           <Settings />
           <CreateArt />
-          { this.props.showAll ? <MyArt /> : <Spinner /> }
-          { this.props.showAll ? <ArtTokens /> : <Spinner /> }
+          { this.props.showAll ? <ArtistProfile /> : <Spinner type="table"/> }
+          {/* { this.props.showAll ? <MyArt /> : <Spinner type="table"/> } */}
+          { this.props.showAll ? <ArtTokens /> : <Spinner type="table"/> }
         </div>
       </div>
     );
