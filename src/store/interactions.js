@@ -46,7 +46,11 @@ import {
   orderAccepting,
   balanceLoaded,
   balanceLoading,
-  withdrawCompleted
+  withdrawCompleted,
+  purchaseProcessing,
+  purchaseComplete,
+  orderCreating,
+  orderCreated
 } from './actions'
 import Tokens from '../abis/Tokens.json'
 import ArtFactory from '../abis/ArtFactory.json'
@@ -355,6 +359,17 @@ export const loadSalesCancelled = async (artFactory, dispatch) => {
   dispatch(salesCancelledLoaded(salesCancelled))
 }
 
+export const purchaseArt = async (dispatch, artFactory, tokens, art, account, totalPrice) => {
+  await artFactory.methods.purchase(tokens.options.address, art.id).send({ from: account, value: totalPrice })
+  .on('transactionHash', (hash) => {
+    dispatch(purchaseProcessing())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
 // ORDERS
 
 export const loadAllOrders = async (artFactory, dispatch) => {
@@ -389,6 +404,17 @@ export const acceptOpenOrder = async (dispatch, artFactory, order, account) => {
   await artFactory.methods.acceptOrder(order.id).send({ from: account })
   .on('transactionHash', (hash) => {
     dispatch(orderAccepting())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
+export const createNewOrder = async (dispatch, artFactory, parentIDS, numLegacies, price, account) => {
+  await artFactory.methods.createOrder(parentIDS, numLegacies).send({ from: account, value: price })
+  .on('transactionHash', (hash) => {
+    dispatch(orderCreating())
   })
   .on('error', (error) => {
     console.log(error)
@@ -445,6 +471,14 @@ export const subscribeToEvents = async (artFactory, dispatch) => {
 
   artFactory.events.Withdraw({}, (error, event) => {
     dispatch(withdrawCompleted(event.returnValues))
+  })
+
+  artFactory.events.Purchase({}, (error, event) => {
+    dispatch(purchaseComplete(event.returnValues))
+  })
+
+  artFactory.events.Order({}, (error, event) => {
+    dispatch(orderCreated(event.returnValues))
   })
 }
 

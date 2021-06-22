@@ -19,6 +19,7 @@ import Spinner from './Spinner'
 import SettingsNonArtist from './SettingsNonArtist'
 import ProfileNonArtist from './ProfileNonArtist'
 import ArtTokens from './ArtTokens'
+import BuyArt from './BuyArt'
 
 class ContentNonArtist extends Component {
   componentWillMount() {
@@ -45,8 +46,9 @@ class ContentNonArtist extends Component {
       <div>
         <div className="content">
           { this.props.showAll ? <SettingsNonArtist /> : <Spinner type="table"/> }
-          { this.props.showAll ? <ArtTokens /> : <Spinner type="table"/> }
+          { this.props.showAll ? <BuyArt /> : <Spinner type="table"/> }
           { this.props.showAll ? <ProfileNonArtist /> : <Spinner type="table"/> }
+          { this.props.showAll ? <ArtTokens /> : <Spinner type="table"/> }
         </div>
       </div>
     );

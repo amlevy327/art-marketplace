@@ -293,6 +293,14 @@ export const balanceLoadedSelector = createSelector(balanceLoaded, l => l)
 const balance = state => get(state, 'artFactory.balance.amount', null)
 export const balanceSelector = createSelector(balance, b => b)
 
+// SALE
+
+export const artForSaleSelector = createSelector(allArt, purchases, artistFeeAccount, (allArt, purchases, artistFeeAccount) => {
+  allArt = decorateAllArt(allArt, purchases)
+  const artForSale  = allArt.filter((a) => a.currentOwner === artistFeeAccount)
+  return artForSale
+})
+
 // REFACTOR
 
 export const allStartupLoadedSelector = createSelector(
@@ -306,3 +314,14 @@ export const allLoadedSelector = createSelector(
   purchasesLoadedSelector,
   (aa, pl) => (aa && pl) 
 )
+
+// NEW ORDER
+
+const newOrderParentIDS = state => get(state, 'artFactory.newOrder.parentIDS', [])
+export const newOrderParentIDSSelector = createSelector(newOrderParentIDS, p => p)
+
+const newOrderNumLegacies = state => get(state, 'artFactory.newOrder.numLegacies', null)
+export const newOrderNumLegaciesSelector = createSelector(newOrderNumLegacies, nl => nl)
+
+const newOrder = state => get(state, 'artFactory.newOrder', {})
+export const newOrderSelector = createSelector(newOrder, no => no)

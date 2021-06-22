@@ -252,12 +252,47 @@ function artFactory(state = {}, action) {
               ]
           }
       }
+    case 'ORDER_CREATING':
+      return { ...state, orderCreating: true }
+    case 'ORDER_CREATED':
+      return {
+          ...state,
+          orderCreating: false,
+          allOrders: {
+              ...state.allOrders,
+              data: [
+                  ...state.allOrders.data,
+                  action.order
+              ]
+          }
+      }
+    
+    case 'NEW_ORDER_PARENTS_CHANGED':
+      return { ...state, newOrder: { ...state.newOrder, parentIDS: action.parentIDS } }
+    case 'NEW_ORDER_NUM_LEGACIES_CHANGED':
+      return { ...state, newOrder: { ...state.newOrder, numLegacies: action.numLegacies } }
+    
     case 'BALANCE_LOADED':
       return { ...state, balance: {loaded: true, amount: action.accountBalance} }
     case 'BALANCE_LOADING':
       return { ...state, balance: {...state.balance, loading: true} }
     case 'WITHDRAW_COMPLETED':
       return { ...state, balance: {...state.balance, loading: false, amount: action.withdraw.balance} }
+    
+    case 'PURCHASE_PROCESSING':
+      return { ...state, purchaseProcessing: true }
+    case 'PURCHASE_COMPLETE':
+      return {
+          ...state,
+          purchaseProcessing: false,
+          purchases: {
+              ...state.purchases,
+              data: [
+                  ...state.purchases.data,
+                  action.purchase
+              ]
+          }
+      }
     default:
       return state
   }

@@ -448,6 +448,20 @@ export function orderAccepting() {
   }
 }
 
+export function orderCreating() {
+  return {
+    type: 'ORDER_CREATING'
+  }
+}
+
+export function orderCreated(order) {
+  return {
+    type: 'ORDER_CREATED',
+    order
+  }
+}
+
+
 // BALANCES
 
 export function balanceLoaded(accountBalance) {
@@ -467,5 +481,36 @@ export function withdrawCompleted(withdraw) {
   return {
       type: 'WITHDRAW_COMPLETED',
       withdraw
+  }
+}
+
+// PURCHASES
+
+export function purchaseProcessing() {
+  return {
+    type: 'PURCHASE_PROCESSING'
+  }
+}
+
+export function purchaseComplete(purchase) {
+  return {
+    type: 'PURCHASE_COMPLETE',
+    purchase
+  }
+}
+
+// NEW ORDER
+
+export function newOrderParentsChanged(parentIDS) {
+  return {
+    type: 'NEW_ORDER_PARENTS_CHANGED',
+    parentIDS
+  }
+}
+
+export function newOrderNumLegaciesChanged(numLegacies) {
+  return {
+    type: 'NEW_ORDER_NUM_LEGACIES_CHANGED',
+    numLegacies
   }
 }
