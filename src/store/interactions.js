@@ -41,7 +41,12 @@ import {
   artistFeeAccountUpdated,
   newArtGen0Creating,
   newArtFromOrderCreating,
-  newArtCreated
+  newArtCreated,
+  orderAccepted,
+  orderAccepting,
+  balanceLoaded,
+  balanceLoading,
+  withdrawCompleted
 } from './actions'
 import Tokens from '../abis/Tokens.json'
 import ArtFactory from '../abis/ArtFactory.json'
@@ -291,16 +296,24 @@ export const createArtFromOrder = async (dispatch, artFactory, tokens, orderID, 
   console.log('buyer: ', buyer)
   console.log('account: ', account)
 
-  const parentsTest = parents.split(',')
-
+  const parentsSplit = parents.split(',')
   const parentsArray = []
   for(let i=0; i<parents.length; i++) {
-    if(parentsTest[i]) {
-      parentsArray.push(parentsTest[i])
+    if(parentsSplit[i]) {
+      parentsArray.push(parentsSplit[i])
     }
-    // parentsArray.push(parentsTest[i])
   }
+
+  const siblingsSplit = siblings.split(',')
+  const siblingsArray = []
+  for(let i=0; i<siblings.length; i++) {
+    if(siblingsSplit[i]) {
+      siblingsArray.push(siblingsSplit[i])
+    }
+  }
+
   console.log('parentsArray: ', parentsArray)
+  console.log('siblingsArray: ', siblingsArray)
 
   await artFactory.methods.createArtFromOrder(tokens.options.address, orderID, tokenURI, name, gen, parentsArray, parentsArray, buyer).send({ from: account })
   .on('transactionHash', (hash) => {
@@ -365,15 +378,22 @@ export const cancelOpenOrder = async (dispatch, artFactory, order, account) => {
   })
 }
 
+export const acceptOpenOrder = async (dispatch, artFactory, order, account) => {
+  await artFactory.methods.acceptOrder(order.id).send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(orderAccepting())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
+  })
+}
+
 // EVENTS
 
 export const subscribeToEvents = async (artFactory, dispatch) => {
   artFactory.events.NewArt({}, (error, event) => {
     dispatch(newArtCreated(event.returnValues))
-  })
-
-  artFactory.events.Cancel({}, (error, event) => {
-    dispatch(orderCancelled(event.returnValues))
   })
 
   artFactory.events.ArtistFeeAccount({}, (error, event) => {
@@ -406,5 +426,40 @@ export const subscribeToEvents = async (artFactory, dispatch) => {
 
   artFactory.events.MaxLegacies({}, (error, event) => {
     dispatch(maxLegaciesUpdated(event.returnValues))
+  })
+
+  artFactory.events.Cancel({}, (error, event) => {
+    dispatch(orderCancelled(event.returnValues))
+  })
+
+  artFactory.events.Accept({}, (error, event) => {
+    dispatch(orderAccepted(event.returnValues))
+  })
+
+  artFactory.events.Withdraw({}, (error, event) => {
+    dispatch(withdrawCompleted(event.returnValues))
+  })
+}
+
+// BALANCES
+
+export const loadBalance = async (dispatch, web3, artFactory, account) => {
+  if(typeof account !== 'undefined') {
+    const accountBalance = await artFactory.methods.balances(account).call()
+    console.log('accountBalance: ', accountBalance)
+    dispatch(balanceLoaded(accountBalance))
+  } else {
+    window.alert('Please login with MetaMask')
+  }
+}
+
+export const withdrawBalance = async (dispatch, artFactory, account) => {
+  await artFactory.methods.withdrawBalance().send({ from: account })
+  .on('transactionHash', (hash) => {
+    dispatch(balanceLoading())
+  })
+  .on('error', (error) => {
+    console.log(error)
+    window.alert('There was an error!')
   })
 }

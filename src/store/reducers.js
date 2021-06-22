@@ -238,6 +238,26 @@ function artFactory(state = {}, action) {
               ]
           }
       }
+    case 'ORDER_ACCEPTING':
+      return { ...state, orderAccepting: true }
+    case 'ORDER_ACCEPTED':
+      return {
+          ...state,
+          orderAccepting: false,
+          acceptedOrders: {
+              ...state.acceptedOrders,
+              data: [
+                  ...state.acceptedOrders.data,
+                  action.order
+              ]
+          }
+      }
+    case 'BALANCE_LOADED':
+      return { ...state, balance: {loaded: true, amount: action.accountBalance} }
+    case 'BALANCE_LOADING':
+      return { ...state, balance: {...state.balance, loading: true} }
+    case 'WITHDRAW_COMPLETED':
+      return { ...state, balance: {...state.balance, loading: false, amount: action.withdraw.balance} }
     default:
       return state
   }

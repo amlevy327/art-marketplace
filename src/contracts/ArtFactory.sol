@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 // TODO: tests for rejects order if filled or cancelled
 // TODO: tests for purchase if from artist or not
 // TODO: test for events for settings both constructor and updates
+// TODO: test withdraw events
 
 contract ArtFactory is Ownable {
 
@@ -79,6 +80,7 @@ contract ArtFactory is Ownable {
   event MaxParents(uint256 newAmount);
   event MinLegacies(uint256 newAmount);
   event MaxLegacies(uint256 newAmount);
+  event Withdraw(address indexed user, uint256 amount, uint256 balance);
 
 
   constructor(
@@ -320,9 +322,12 @@ contract ArtFactory is Ownable {
 
   function withdrawBalance() public {
     address payable _account = payable(msg.sender);
-    require(balances[_account] > 0 );
+    uint256 _currentBalance = balances[_account];
+    require(_currentBalance > 0 );
     
     balances[_account] = 0;
-    _account.transfer(balances[_account]);
+    _account.transfer(_currentBalance);
+    
+    emit Withdraw(msg.sender, _currentBalance, 0);
   }
 }
