@@ -104,6 +104,13 @@ export const loadArtFactory = async (web3, networkId, dispatch) => {
 
 // SETTINGS
 
+export const loadArtistFeeAccount = async (artFactory, dispatch) => {
+  // artist fee account
+  const artistFeeAccountStream = await artFactory.getPastEvents('ArtistFeeAccount', { fromBlock: 0, toBlock: 'latest' })
+  const artistFeeAccount = artistFeeAccountStream.map((event) => event.returnValues)
+  dispatch(artistFeeAccountLoaded(artistFeeAccount))
+}
+
 export const loadAllSettings = async (artFactory, dispatch) => {
   // contract fee account
   const contractFeeAccountStream = await artFactory.getPastEvents('ContractFeeAccount', { fromBlock: 0, toBlock: 'latest' })

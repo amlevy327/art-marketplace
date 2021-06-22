@@ -295,6 +295,12 @@ export const balanceSelector = createSelector(balance, b => b)
 
 // REFACTOR
 
+export const allStartupLoadedSelector = createSelector(
+  artFactoryLoadedSelector,
+  tokensLoadedSelector,
+  (afl, tl) => (afl && tl)
+)
+
 export const allLoadedSelector = createSelector(
   allArtLoadedSelector,
   purchasesLoadedSelector,

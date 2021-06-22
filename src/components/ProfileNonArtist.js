@@ -42,8 +42,10 @@ const showMyAcceptedOrders = (myAcceptedOrders) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
+            <td>{order.price}</td>
             <td>{order.gen}</td>
-            <td>{order.buyer}</td>
+            <td>{order.parentIDS.join(", ")}</td>
+            <td>{order.numLegacies}</td>
           </tr>
         )
       })
@@ -60,15 +62,17 @@ const showMyOpenOrders = (props) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
+            <td>{order.price}</td>
             <td>{order.gen}</td>
-            <td>{order.parentIDS.join(',')}</td>
+            <td>{order.parentIDS.join(", ")}</td>
+            <td>{order.numLegacies}</td>
             <td
                 className="text-muted cancel-order"
                 onClick={(e) => {
                   console.log('button click: cancel order')
                   cancelOpenOrder(dispatch, artFactory, order, account)
                 }}
-            >X</td>
+            >Cancel</td>
           </tr>
         )
       })
@@ -77,12 +81,12 @@ const showMyOpenOrders = (props) => {
   )
 }
 
-class MyArt extends Component {
+class ProfileNonArtist extends Component {
   render() {
     return (
       <div className="card bg-dark text-white">
         <div className="card-header">
-          My Art
+          User Profile
         </div>
         <div className="card-body">
         <Tabs defaultActiveKey="art" className="bg-dark text-white">
@@ -103,8 +107,10 @@ class MyArt extends Component {
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>Price</th>
                     <th>Gen</th>
-                    <th>Buyer</th>
+                    <th>Parent IDs</th>
+                    <th>Num Legacies</th>
                   </tr>
                 </thead>
                 { this.props.myOrdersLoaded ? showMyAcceptedOrders(this.props.myAcceptedOrders) : <Spinner type="table"/> }
@@ -115,9 +121,10 @@ class MyArt extends Component {
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>Price</th>
                     <th>Gen</th>
-                    <th>Parents</th>
-                    <th>Cancel</th>
+                    <th>Parent IDs</th>
+                    <th>Num Legacies</th>
                   </tr>
                 </thead>
                 { this.props.myOrdersLoaded ? showMyOpenOrders(this.props) : <Spinner type="table"/> }
@@ -147,4 +154,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(MyArt)
+export default connect(mapStateToProps)(ProfileNonArtist)
