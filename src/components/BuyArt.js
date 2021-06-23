@@ -43,11 +43,11 @@ const showArtForSale = (props) => {
       { artForSale.map((art) => {
         return(
           <tr className={`art-${art.id}`} key={art.id}>
-            <td>{art.id}</td>
+            <td>
+              <img src={art.tokenURI} alt="N/A" width="100" height="100"></img>
+            </td>
             <td>{art.gen}</td>
-            <td>{baseArtPrice}</td>
             <td>{totalPrice}</td>
-            {/* <td>{art.owner}</td> */}
             <td
                 className="text-muted cancel-order"
                 onClick={(e) => {
@@ -133,6 +133,10 @@ const showCreateOrder = (props) => {
       { myArt.map((art) => {
         return(
           <tr className={`art-${art.id}`} key={art.id}>
+            <td>
+              <img src={art.tokenURI} alt="N/A" width="100" height="100"></img>
+            </td>
+            <td>{art.gen}</td>
             <td><input
             type="checkbox"
             onClick={(e) => {
@@ -140,9 +144,6 @@ const showCreateOrder = (props) => {
               updateParents(props, art.id)
             }}
             /></td>
-            <td>{art.id}</td>
-            <td>{art.gen}</td>
-            <td>{art.tokenURI}</td>
           </tr>
         )
       })
@@ -190,10 +191,10 @@ class BuyArt extends Component {
               <table className="table table-dark table-sm small">
                 <thead>
                   <tr>
-                    <th>ID</th>
+                    <th></th>
                     <th>Gen</th>
-                    <th>Base Price</th>
                     <th>Total Price</th>
+                    <th></th>
                   </tr>
                 </thead>
                 { this.props.allLoaded ? showArtForSale(this.props) : <Spinner type="table"/> }
@@ -204,9 +205,8 @@ class BuyArt extends Component {
                 <thead>
                   <tr>
                     <th></th>
-                    <th>ID</th>
                     <th>Gen</th>
-                    <th>Token URI</th>
+                    <th></th>
                   </tr>
                 </thead>
                 { this.props.allLoaded ? showCreateOrder(this.props) : <Spinner type="table"/> }
