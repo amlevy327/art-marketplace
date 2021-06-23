@@ -18,12 +18,12 @@ const showAllArt = (updatedArt) => {
       { updatedArt.map((art) => {
         return(
           <tr className={`order-${art.id}`} key={art.id}>
-            <td>{art.id}</td>
-            <td>{art.tokenURI}</td>
-            <td>{art.currentOwner}</td>
-            {/* <td>
-              <img src="https://pngimg.com/uploads/apple/apple_PNG12405.png" alt="my text"></img>
-            </td> */}
+            <td>
+              <img src={art.tokenURI} alt="N/A" width="100" height="100"></img>
+            </td>
+            <td>{art.gen}</td>
+            <td>{art.parents.join(", ")}</td>
+            <td>{art.siblings.join(", ")}</td>
           </tr>
         )
       })
@@ -39,8 +39,10 @@ const showAllAcceptedOrders = (allAcceptedOrders) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
+            <td>{order.price}</td>
             <td>{order.gen}</td>
-            <td>{order.buyer}</td>
+            <td>{order.parentIDS.join(", ")}</td>
+            <td>{order.numLegacies}</td>
           </tr>
         )
       })
@@ -56,8 +58,10 @@ const showAllOpenOrders = (allOpenOrders) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
+            <td>{order.price}</td>
             <td>{order.gen}</td>
-            <td>{order.buyer}</td>
+            <td>{order.parentIDS.join(", ")}</td>
+            <td>{order.numLegacies}</td>
           </tr>
         )
       })
@@ -71,7 +75,7 @@ class ArtTokens extends Component {
     return (
       <div className="card bg-dark text-white">
         <div className="card-header">
-            Art
+            Community
         </div>
         <div className="card-body">
           <Tabs defaultActiveKey="art" className="bg-dark text-white">
@@ -79,9 +83,10 @@ class ArtTokens extends Component {
               <table className="table table-dark table-sm small">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>TokenURI</th>
-                    <th>Owner</th>
+                    <th></th>
+                    <th>Gen</th>
+                    <th>Parents</th>
+                    <th>Siblings</th>
                   </tr>
                 </thead>
                 { this.props.allArtLoaded ? showAllArt(this.props.updatedArt) : <Spinner type="table"/> }
@@ -92,8 +97,10 @@ class ArtTokens extends Component {
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>Price</th>
                     <th>Gen</th>
-                    <th>Buyer</th>
+                    <th>Parent IDs</th>
+                    <th>Num Legacies</th>
                   </tr>
                 </thead>
                 { this.props.allOrdersLoaded ? showAllAcceptedOrders(this.props.allAcceptedOrders) : <Spinner type="table"/> }
@@ -104,8 +111,10 @@ class ArtTokens extends Component {
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>Price</th>
                     <th>Gen</th>
-                    <th>Buyer</th>
+                    <th>Parent IDs</th>
+                    <th>Num Legacies</th>
                   </tr>
                 </thead>
                 { this.props.allOrdersLoaded ? showAllOpenOrders(this.props.allOpenOrders) : <Spinner type="table"/> }

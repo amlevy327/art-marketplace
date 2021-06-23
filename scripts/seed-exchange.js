@@ -61,63 +61,63 @@ module.exports = async function(callback) {
 
     // create gen0 arts
 
-    result = await artFactory.createArtGen0(tokens.address, "000", "Andrew", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmWd5X5cwcsKaC1UScppxwZtccbZP4eBNtGoR4fHQ2AHr8", "Andrew", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 0')
 
-    result = await artFactory.createArtGen0(tokens.address, "111", "Hannah", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmYtcgwadwhuMQ5U4cKkGPaMCL5rjKnS92h29nuCboD6CM", "Hannah", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 1')
 
-    result = await artFactory.createArtGen0(tokens.address, "222", "David", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmY1C4fd9grSqqJh1qLyeLcJ14Y4e18wbGFLEqMcDHEtop", "David", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 2')
 
-    result = await artFactory.createArtGen0(tokens.address, "333", "Alexis", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmXPMjbzuTPKzvXqpivL2hrTnpTjMK4TSTZ4mEfkqhModt", "Alexis", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 3')
 
-    result = await artFactory.createArtGen0(tokens.address, "444", "Stevie", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmSyMPsYrd36T6UsbMSfEud8gk9yihroGGN8kya6vumh8q", "Stevie", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 4')
 
-    result = await artFactory.createArtGen0(tokens.address, "555", "Johnny", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmaGjZXuFvbMG3WJjyyFg15NYuU3SFNAQofSjjcmLwNiZb", "Johnny", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 5')
 
-    result = await artFactory.createArtGen0(tokens.address, "666", "Moira", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmWzzrCWFXW8KjBSS4fSzae2UAk65KPuRLrdZkd5QT6CBr", "Moira", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 6')
 
-    result = await artFactory.createArtGen0(tokens.address, "777", "Roland", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmdC98SyS7gjpCQbb78uX642UL6kNvMPcyhmwY4rfG3bVX", "Roland", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 7')
 
-    result = await artFactory.createArtGen0(tokens.address, "888", "Patrick", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmV1UxMhfJH9do2fzQSo5zw5g3t8LLAp7p1Rmxeu2vWoGi", "Patrick", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 8')
 
-    result = await artFactory.createArtGen0(tokens.address, "999", "Ronnie", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmfUcs5f9nLuuJPwtHX4J2GpiKvALDweeWVY4gTQL6dwfD", "Ronnie", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 9')
 
-    result = await artFactory.createArtGen0(tokens.address, "101010", "Joe", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/Qmc7xyPqdL8N9JvNoCoKeKHXYxDcLcYjxLcwboQDqpTjKa", "Joe", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 10')
 
-    result = await artFactory.createArtGen0(tokens.address, "111111", "John", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmexJKvxpmNGq1XFDuq3JDad4KZ9o6BHznCoJNM7Bwanrq", "John", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 11')
 
-    result = await artFactory.createArtGen0(tokens.address, "121212", "Paul", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmafY3yEjfyy2mri33kapmaGshoUwowGzu7d8tLjTJ91xs", "Paul", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 12')
 
-    result = await artFactory.createArtGen0(tokens.address, "131313", "Rachel", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmWTqJT28tR63VURexAmnNzjfNJJaBxMvX6Sc5NvrnRP3R", "Rachel", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 13')
 
-    result = await artFactory.createArtGen0(tokens.address, "141414", "Adam", { from: artist })
+    result = await artFactory.createArtGen0(tokens.address, "https://ipfs.io/ipfs/QmdE9eJZfb45LuLT6X2rhmZtdWHf1ggMGNwJg9G5n3MuY1", "Adam", { from: artist })
     await wait(1)
     console.log('New art gen 0: id = 14')
 
@@ -217,7 +217,7 @@ module.exports = async function(callback) {
 
     // create arts from orders
 
-    await artFactory.createArtFromOrder(tokens.address, 5, "poiu", "JessieOrder", 1, [11,12], [], buyer1, { from: artist })
+    await artFactory.createArtFromOrder(tokens.address, 5, "https://ipfs.io/ipfs/QmS5DRxNRQv9jMxpzUxcdxzKay6SwUEEsU8JtTuBdFZNi9", "JessieOrder", 1, [11,12], [], buyer1, { from: artist })
     await wait(1)
     console.log('Create art from order: id = 15')
 

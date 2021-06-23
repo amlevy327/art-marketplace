@@ -156,12 +156,14 @@ export const allArtSelector = createSelector(allArt, a => a)
 
 export const updatedArtSelector = createSelector(allArt, purchases, (allArt, allPurchases) => {
   allArt = decorateAllArt(allArt, allPurchases)
+  allArt = allArt.sort((a,b) => b.purchaseTimestamp - a.purchaseTimestamp)
   return allArt
 })
 
 export const updatedMyArtSelector = createSelector(account, allArt, purchases, (account, allArt, allPurchases) => {
   allArt = decorateAllArt(allArt, allPurchases)
-  const myArt = allArt.filter((a) => a.currentOwner === account)
+  let myArt = allArt.filter((a) => a.currentOwner === account)
+  myArt = myArt.sort((a,b) => b.purchaseTimestamp - a.purchaseTimestamp)
   console.log('myArt: ', myArt)
   return myArt
 })
@@ -170,6 +172,7 @@ const decorateAllArt = (allArt, allPurchases) => {
   return(
       allArt.map((art) => {
           art = addCurrentOwner(art, allPurchases)
+          art = addPurchaseTimestamp(art, allPurchases)
           return art
       })
   )
@@ -187,6 +190,21 @@ const addCurrentOwner = (art, allPurchases) => {
   return({
     ...art,
     currentOwner
+  })
+}
+
+const addPurchaseTimestamp = (art, allPurchases) => {
+  let purchaseTimestamp
+  purchaseTimestamp = art.timestamp
+  for(let i=0;i<allPurchases.length;i++){
+    if(art.id === allPurchases[i].id) {
+      purchaseTimestamp = allPurchases[i].timestamp
+    }
+  }
+
+  return({
+    ...art,
+    purchaseTimestamp
   })
 }
 
@@ -250,11 +268,13 @@ const allOpenOrders = state => {
   const cancelled = cancelledOrders(state)
   const accepted = acceptedOrders(state)
 
-  const allOpenOrders = reject(all, (order) => {
+  let allOpenOrders = reject(all, (order) => {
     const orderCancelled = cancelled.some((o) => o.id === order.id)
     const orderAccepted = accepted.some((o) => o.id === order.id)
     return(orderCancelled || orderAccepted)
   })
+
+  allOpenOrders = allOpenOrders.sort((a,b) => a.timestamp - b.timestamp)
 
   return allOpenOrders
 }
@@ -270,10 +290,12 @@ const allAcceptedOrders = state => {
   const accepted = acceptedOrders(state)
   const filled = allArt(state)
 
-  const allAcceptedOrders = reject(accepted, (order) => {
+  let allAcceptedOrders = reject(accepted, (order) => {
     const artCreated = filled.some((o) => o.orderID === order.id)
     return artCreated
   })
+
+  allAcceptedOrders = allAcceptedOrders.sort((a,b) => a.timestamp - b.timestamp)
   
   return allAcceptedOrders
 }
@@ -283,7 +305,7 @@ export const allAcceptedOrdersSelector = createSelector(allAcceptedOrders, ao =>
 export const myAcceptedOrdersSelector = createSelector(allAcceptedOrders, account, (orders, account) => {
   orders = orders.filter((o) => o.buyer === account)
   return orders
-}) 
+})
 
 // BALANCES
 

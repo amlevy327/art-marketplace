@@ -22,9 +22,12 @@ const showMyArt = (myArt) => {
       { myArt.map((art) => {
         return(
           <tr className={`order-${art.id}`} key={art.id}>
-            <td>{art.id}</td>
-            <td>{art.tokenURI}</td>
-            <td>{art.currentOwner}</td>
+            <td>
+              <img src={art.tokenURI} alt="N/A" width="100" height="100"></img>
+            </td>
+            <td>{art.gen}</td>
+            <td>{art.parents.join(", ")}</td>
+            <td>{art.siblings.join(", ")}</td>
           </tr>
         )
       })
@@ -144,9 +147,10 @@ class ProfileArtist extends Component {
               <table className="table table-dark table-sm small">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>TokenURI</th>
-                    <th>Owner</th>
+                    <th></th>
+                    <th>Gen</th>
+                    <th>Parents</th>
+                    <th>Siblings</th>
                   </tr>
                 </thead>
                 { this.props.myArtLoaded ? showMyArt(this.props.myArt) : <Spinner type="table"/>}
