@@ -42,7 +42,7 @@ const showMyAcceptedOrders = (myAcceptedOrders) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
-            <td>{order.price}</td>
+            <td>{order.formattedPrice}</td>
             <td>{order.gen}</td>
             <td>{order.parentIDS.join(", ")}</td>
             <td>{order.numLegacies}</td>
@@ -62,7 +62,7 @@ const showMyOpenOrders = (props) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
-            <td>{order.price}</td>
+            <td>{order.formattedPrice}</td>
             <td>{order.gen}</td>
             <td>{order.parentIDS.join(", ")}</td>
             <td>{order.numLegacies}</td>

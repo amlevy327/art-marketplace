@@ -1,5 +1,6 @@
 import { get, reject } from 'lodash'
 import { createSelector } from 'reselect'
+import { ether, formatBalance, formatPrice } from '../helpers'
 
 // ACCOUNT
 
@@ -66,7 +67,11 @@ const baseArtPriceLoaded = state => get(state, 'artFactory.baseArtPrice.loaded',
 export const baseArtPriceLoadedSelector = createSelector(baseArtPriceLoaded, l => l)
 
 const baseArtPrice = state => get(state, 'artFactory.baseArtPrice.amount', null)
-export const baseArtPriceSelector = createSelector(baseArtPrice, bap => bap)
+export const baseArtPriceSelector = createSelector(
+  baseArtPrice, 
+  (baseArtPrice) => {
+    return formatBalance(baseArtPrice)
+  })
 
 const updatedBaseArtPrice = state => get(state, 'artFactory.baseArtPrice.newAmount', null)
 export const updatedBaseArtPriceSelector = createSelector(updatedBaseArtPrice, ubap => ubap)
@@ -241,6 +246,24 @@ export const updatedNewArtFromOrderBuyerSelector = createSelector(updatedNewArtF
 
 // ORDERS
 
+const decorateOrders = (orders) => {
+  return(
+    orders.map((order) => {
+      order = addFormattedPrice(order)
+      return order
+    })
+  )
+}
+
+const addFormattedPrice = (order) => {
+  const formattedPrice = formatPrice(order.price)
+
+  return({
+    ...order,
+    formattedPrice
+  })
+}
+
 const allOrdersLoaded = state => get(state, 'artFactory.allOrders.loaded', false)
 export const allOrdersLoadedSelector = createSelector(allOrdersLoaded, status => status)
 const allOrders = state => get(state, 'artFactory.allOrders.data', [])
@@ -276,6 +299,8 @@ const allOpenOrders = state => {
 
   allOpenOrders = allOpenOrders.sort((a,b) => a.timestamp - b.timestamp)
 
+  allOpenOrders = decorateOrders(allOpenOrders)
+
   return allOpenOrders
 }
 
@@ -296,6 +321,8 @@ const allAcceptedOrders = state => {
   })
 
   allAcceptedOrders = allAcceptedOrders.sort((a,b) => a.timestamp - b.timestamp)
+
+  allAcceptedOrders = decorateOrders(allAcceptedOrders)
   
   return allAcceptedOrders
 }
@@ -313,7 +340,12 @@ const balanceLoaded = state => get(state, 'artFactory.balance.loaded', false)
 export const balanceLoadedSelector = createSelector(balanceLoaded, l => l)
 
 const balance = state => get(state, 'artFactory.balance.amount', null)
-export const balanceSelector = createSelector(balance, b => b)
+export const balanceSelector = createSelector(
+  balance,
+  (balance) => {
+    balance = formatBalance(balance)
+    return balance
+})
 
 // SALE
 

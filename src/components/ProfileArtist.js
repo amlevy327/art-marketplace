@@ -12,11 +12,16 @@ import {
   purchasesLoadedSelector,
   updatedMyArtSelector,
   balanceLoadedSelector,
-  balanceSelector
+  balanceSelector,
+  baseArtPriceSelector
 } from '../store/selectors'
 import { acceptOpenOrder, loadBalance, withdrawBalance } from '../store/interactions'
 
-const showMyArt = (myArt) => {
+const showMyArt = (props) => {
+  const {
+    myArt,
+    baseArtPrice
+  } = props
   return(
     <tbody>
       { myArt.map((art) => {
@@ -25,9 +30,8 @@ const showMyArt = (myArt) => {
             <td>
               <img src={art.tokenURI} alt="N/A" width="100" height="100"></img>
             </td>
+            <td>{baseArtPrice}</td>
             <td>{art.gen}</td>
-            <td>{art.parents.join(", ")}</td>
-            <td>{art.siblings.join(", ")}</td>
           </tr>
         )
       })
@@ -52,7 +56,7 @@ const showAllAcceptedOrders = (props) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
-            <td>{order.price}</td>
+            <td>{order.formattedPrice}</td>
             <td>{order.gen}</td>
             <td>{order.parentIDS.join(", ")}</td>
             <td>{order.numLegacies}</td>
@@ -80,7 +84,7 @@ const showAllOpenOrders = (props) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
             <td>{order.id}</td>
-            <td>{order.price}</td>
+            <td>{order.formattedPrice}</td>
             <td>{order.gen}</td>
             <td>{order.parentIDS.join(", ")}</td>
             <td>{order.numLegacies}</td>
@@ -148,12 +152,11 @@ class ProfileArtist extends Component {
                 <thead>
                   <tr>
                     <th></th>
+                    <th>Price</th>
                     <th>Gen</th>
-                    <th>Parents</th>
-                    <th>Siblings</th>
                   </tr>
                 </thead>
-                { this.props.myArtLoaded ? showMyArt(this.props.myArt) : <Spinner type="table"/>}
+                { this.props.myArtLoaded ? showMyArt(this.props) : <Spinner type="table"/>}
               </table>
             </Tab>
             <Tab eventKey="accepted" title="Accepted Orders" className="bg-dark">
@@ -214,7 +217,8 @@ function mapStateToProps(state) {
     myArtLoaded: allArtLoaded && allPurchasesLoaded,
     myArt: updatedMyArtSelector(state),
     balanceLoaded: balanceLoadedSelector(state),
-    balance: balanceSelector(state)
+    balance: balanceSelector(state),
+    baseArtPrice: baseArtPriceSelector(state)
   }
 }
 

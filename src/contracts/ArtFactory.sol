@@ -13,6 +13,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 // TODO: tests for purchase if from artist or not
 // TODO: test for events for settings both constructor and updates
 // TODO: test withdraw events
+// TODO: remove non used features, functions, etc.
 
 contract ArtFactory is Ownable {
 
