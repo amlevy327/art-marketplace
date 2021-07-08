@@ -14,7 +14,8 @@ import {
   tokensSelector,
   updatedMyArtSelector,
   newOrderSelector,
-  parentMultiplierPercentageSelector
+  parentMultiplierPercentageSelector,
+  contractFeePercentageLoadedSelector
 } from '../store/selectors'
 import {
   createNewOrder,
@@ -35,9 +36,9 @@ const showArtForSale = (props) => {
     baseArtPrice,
     contractFeePercentage
   } = props
-
-  const totalPrice = parseInt(baseArtPrice) + parseInt(baseArtPrice * contractFeePercentage / 100)
-
+  
+  const totalPrice = parseInt(baseArtPrice) + (parseInt(baseArtPrice) * (parseInt(contractFeePercentage) / 100))
+  
   return(
     <tbody>
       { artForSale.map((art) => {
@@ -197,7 +198,7 @@ class BuyArt extends Component {
                     <th></th>
                   </tr>
                 </thead>
-                { this.props.allLoaded ? showArtForSale(this.props) : <Spinner type="table"/> }
+                { this.props.showAll ? showArtForSale(this.props) : <Spinner type="table"/> }
               </table>
             </Tab>
             <Tab eventKey="order" title="Create Order" className="bg-dark">
@@ -209,9 +210,9 @@ class BuyArt extends Component {
                     <th></th>
                   </tr>
                 </thead>
-                { this.props.allLoaded ? showCreateOrder(this.props) : <Spinner type="table"/> }
+                { this.props.showAll ? showCreateOrder(this.props) : <Spinner type="table"/> }
               </table>
-              { this.props.allLoaded ? showNumLegaciesForm(this.props) : <Spinner type="table"/> }
+              { this.props.showAll ? showNumLegaciesForm(this.props) : <Spinner type="table"/> }
             </Tab>
           </Tabs>
         </div>
@@ -224,13 +225,14 @@ function mapStateToProps(state) {
   const newOrder = newOrderSelector(state)
   const parentIDS = newOrderParentIDSSelector(state)
   const numLegacies = newOrderNumLegaciesSelector(state)
+  const allLoaded = allLoadedSelector(state)
+  const contractFeePercentageLoaded = contractFeePercentageLoadedSelector(state)
 
   return {
     account: accountSelector(state),
     artFactory: artFactorySelector(state),
     tokens: tokensSelector(state),
     artForSale: artForSaleSelector(state),
-    allLoaded: allLoadedSelector(state),
     baseArtPrice: baseArtPriceSelector(state),
     contractFeePercentage: contractFeePercentageSelector(state),
     parentMultiplierPercentage: parentMultiplierPercentageSelector(state),
@@ -238,6 +240,7 @@ function mapStateToProps(state) {
     newOrderParentIDS: parentIDS,
     newOrderNumLegacies: numLegacies,
     //showNewOrderTotalPrice: parentIDS.length > 3 && newOrder.numLegacies
+    showAll: allLoaded && contractFeePercentageLoaded
   }
 }
 
