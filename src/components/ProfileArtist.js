@@ -111,8 +111,6 @@ const showBalance = (props) => {
     balance
   } = props
   
-  //console.log('allOpenOrders: ', allOpenOrders)
-
   return(
     <tbody>
       <tr >

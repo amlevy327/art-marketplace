@@ -1,6 +1,6 @@
 import { get, reject } from 'lodash'
 import { createSelector } from 'reselect'
-import { ether, formatBalance, formatPrice } from '../helpers'
+import { ether, formatBalance, formatPrice, GREEN, RED } from '../helpers'
 
 // ACCOUNT
 
@@ -159,8 +159,8 @@ export const allArtLoadedSelector = createSelector(allArtLoaded, na => na)
 const allArt = state => get(state, 'artFactory.newArt.data', [])
 export const allArtSelector = createSelector(allArt, a => a)
 
-export const updatedArtSelector = createSelector(allArt, purchases, (allArt, allPurchases) => {
-  allArt = decorateAllArt(allArt, allPurchases)
+export const updatedArtSelector = createSelector(allArt, purchases, account, (allArt, allPurchases, account) => {
+  allArt = decorateAllArt(allArt, allPurchases, account)
   allArt = allArt.sort((a,b) => b.purchaseTimestamp - a.purchaseTimestamp)
   return allArt
 })
@@ -173,11 +173,12 @@ export const updatedMyArtSelector = createSelector(account, allArt, purchases, (
   return myArt
 })
 
-const decorateAllArt = (allArt, allPurchases) => {
+const decorateAllArt = (allArt, allPurchases, account) => {
   return(
       allArt.map((art) => {
           art = addCurrentOwner(art, allPurchases)
           art = addPurchaseTimestamp(art, allPurchases)
+          art = addColorToArt(art, account)
           return art
       })
   )
@@ -210,6 +211,17 @@ const addPurchaseTimestamp = (art, allPurchases) => {
   return({
     ...art,
     purchaseTimestamp
+  })
+}
+
+const addColorToArt = (art, account) => {
+  console.log('ACTA art.currentOwner: ', art.currentOwner)
+  console.log('ACTA account: ', account)
+  const ownedByCurrentAccount = art.currentOwner === account ? GREEN : RED
+
+  return({
+    ...art,
+    ownedByCurrentAccount
   })
 }
 
@@ -246,10 +258,11 @@ export const updatedNewArtFromOrderBuyerSelector = createSelector(updatedNewArtF
 
 // ORDERS
 
-const decorateOrders = (orders) => {
+const decorateOrders = (orders, account) => {
   return(
     orders.map((order) => {
       order = addFormattedPrice(order)
+      order = addColorToOrder(order, account)
       return order
     })
   )
@@ -261,6 +274,17 @@ const addFormattedPrice = (order) => {
   return({
     ...order,
     formattedPrice
+  })
+}
+
+const addColorToOrder = (order, account) => {
+  console.log('AC order.buyer: ', order.buyer)
+  console.log('AC account: ', account)
+  const createdByCurrentAccount = order.buyer === account ? GREEN : RED
+
+  return({
+    ...order,
+    createdByCurrentAccount
   })
 }
 
@@ -299,15 +323,17 @@ const allOpenOrders = state => {
 
   allOpenOrders = allOpenOrders.sort((a,b) => a.timestamp - b.timestamp)
 
-  allOpenOrders = decorateOrders(allOpenOrders)
-
   return allOpenOrders
 }
 
-export const allOpenOrdersSelector = createSelector(allOpenOrders, oo => oo)
+export const allOpenOrdersSelector = createSelector(allOpenOrders, account, (allOpenOrders, account) => {
+  allOpenOrders = decorateOrders(allOpenOrders, account)
+  return allOpenOrders
+})
 
 export const myOpenOrdersSelector = createSelector(allOpenOrders, account, (orders, account) => {
   orders = orders.filter((o) => o.buyer === account)
+  orders = decorateOrders(orders)
   return orders
 })
 
@@ -322,15 +348,17 @@ const allAcceptedOrders = state => {
 
   allAcceptedOrders = allAcceptedOrders.sort((a,b) => a.timestamp - b.timestamp)
 
-  allAcceptedOrders = decorateOrders(allAcceptedOrders)
-  
   return allAcceptedOrders
 }
 
-export const allAcceptedOrdersSelector = createSelector(allAcceptedOrders, ao => ao)
+export const allAcceptedOrdersSelector = createSelector(allAcceptedOrders, account, (allAcceptedOrders, account) => {
+  allAcceptedOrders = decorateOrders(allAcceptedOrders, account)
+  return allAcceptedOrders
+})
 
 export const myAcceptedOrdersSelector = createSelector(allAcceptedOrders, account, (orders, account) => {
   orders = orders.filter((o) => o.buyer === account)
+  orders = decorateOrders(orders)
   return orders
 })
 
@@ -379,3 +407,5 @@ export const newOrderNumLegaciesSelector = createSelector(newOrderNumLegacies, n
 
 const newOrder = state => get(state, 'artFactory.newOrder', {})
 export const newOrderSelector = createSelector(newOrder, no => no)
+
+// GET ART BY PARENT ID
