@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 // TODO: 
-// TODO: cant create multiple legacies
 // TODO: fix tests where artist is buyer
 // TODO: tests for rejects order if filled or cancelled
 // TODO: tests for purchase if from artist or not
@@ -48,7 +47,6 @@ contract ArtFactory is Ownable {
     uint256 gen;
     string tokenURI;
     string name;
-    bool legacyCreated;
     uint256[] parents;
     uint256[] siblings;
     uint256 timestamp;
@@ -64,13 +62,13 @@ contract ArtFactory is Ownable {
     uint256 timestamp;
   }
 
-  event NewArt(uint256 id, uint256 orderID, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event NewArt(uint256 id, uint256 orderID, address indexed owner, uint256 gen, string tokenURI, string name, uint256[] parents, uint256[] siblings, uint256 timestamp);
   event Order(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen, uint256 timestamp);
   event Accept(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen, uint256 timestamp);
   event Cancel(uint256 id, address indexed buyer, uint256 price, uint256[] parentIDS, uint256 numLegacies, uint256 gen, uint256 timestamp);
-  event ArtForSale(uint256 id, uint256 price, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
-  event SaleCancel(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
-  event Purchase(uint256 id, uint256 price, address indexed buyer, uint256 gen, string tokenURI, string name, bool legacyCreated, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event ArtForSale(uint256 id, uint256 price, address indexed owner, uint256 gen, string tokenURI, string name, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event SaleCancel(uint256 id, address indexed owner, uint256 gen, string tokenURI, string name, uint256[] parents, uint256[] siblings, uint256 timestamp);
+  event Purchase(uint256 id, uint256 price, address indexed buyer, uint256 gen, string tokenURI, string name, uint256[] parents, uint256[] siblings, uint256 timestamp);
   event ContractFeeAccount(address newAddress);
   event ArtistFeeAccount(address newAddress);
   event ContractFeePercentage(uint256 newAmount);
@@ -181,13 +179,13 @@ contract ArtFactory is Ownable {
     uint256 _id = artworkCount;
     uint256[] memory arr;
 
-    artworks[_id] = Art(_id, msg.sender, 0, _tokenURI, _name, false, arr, arr, block.timestamp);
+    artworks[_id] = Art(_id, msg.sender, 0, _tokenURI, _name, arr, arr, block.timestamp);
     artworkCount = artworkCount.add(1);
     prices[_id] = baseArtPrice;
 
     require(Tokens(_tokensAddress).createToken(msg.sender, _id, _tokenURI));
     
-    emit NewArt(_id, 999999,msg.sender, 0, _tokenURI, _name, false, arr, arr, block.timestamp);
+    emit NewArt(_id, 999999,msg.sender, 0, _tokenURI, _name, arr, arr, block.timestamp);
   }
 
   function createArtFromOrder(address _tokensAddress, uint256 _orderID, string memory _tokenURI, string memory _name, uint256 _gen, uint256[] memory _parents, uint256[] memory _siblings, address _buyer) public onlyArtist {
@@ -196,15 +194,10 @@ contract ArtFactory is Ownable {
     require(acceptedOrders[_orderID] == true);
     
     uint256 _id = artworkCount;
-    artworks[_id] = Art(_id, _buyer, _gen, _tokenURI, _name, false, _parents, _siblings, block.timestamp);
+    artworks[_id] = Art(_id, _buyer, _gen, _tokenURI, _name, _parents, _siblings, block.timestamp);
     
     filledOrders[_orderID] = true;
     artworkCount = artworkCount.add(1);
-    for(uint i=0;i<_parents.length;i++) {
-      if(artworks[_parents[i]].legacyCreated == false) {
-        artworks[_parents[i]].legacyCreated = true;
-      }
-    }
 
     uint256 _price = _order.price;
     balances[artistFeeAccount] = balances[artistFeeAccount].add(_price);
@@ -212,29 +205,7 @@ contract ArtFactory is Ownable {
 
     require(Tokens(_tokensAddress).createToken(_buyer, _id, _tokenURI));
     
-    emit NewArt(_id, _orderID, _buyer, _gen, _tokenURI, _name, false, _parents, _siblings, block.timestamp);
-  }
-
-  function putUpForSale(address _tokenAddress, uint256 _id, uint256 _price) public {
-    Art storage _art = artworks[_id];
-    require(_art.id == _id);
-    require(msg.sender == _art.owner);
-
-    prices[_id] = _price;
-
-    require(Tokens(_tokenAddress).isApprovedForAll(msg.sender, address(this)));
-
-    emit ArtForSale(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings, block.timestamp);
-  }
-
-  function cancelSale(uint256 _id) public {
-    Art storage _art = artworks[_id];
-    require(_art.id == _id);
-    require(msg.sender == _art.owner);
-
-    prices[_id] = 0;
-    
-    emit SaleCancel(_id, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings, block.timestamp);
+    emit NewArt(_id, _orderID, _buyer, _gen, _tokenURI, _name, _parents, _siblings, block.timestamp);
   }
 
   function purchase(address _tokenAddress, uint256 _id) public payable {
@@ -269,7 +240,7 @@ contract ArtFactory is Ownable {
 
     _art.owner = msg.sender;
     
-    emit Purchase(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.legacyCreated, _art.parents, _art.siblings, block.timestamp);
+    emit Purchase(_id, _price, _art.owner, _art.gen, _art.tokenURI, _art.name, _art.parents, _art.siblings, block.timestamp);
   }
 
   function createOrder(uint256[] memory _parentIDS, uint256 _numLegacies) public payable {

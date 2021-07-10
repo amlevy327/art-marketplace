@@ -55,153 +55,153 @@ contract('Art - sale', ([owner, artist, buyer1, buyer2, buyer3]) => {
     await tokens.setMarketplaceAddress(artFactory.address, { from: owner })
   })
 
-  describe('put up for sale', () => {
-    let result
-    let artID = '1'
-    let orderID = '0'
+  // describe('put up for sale', () => {
+  //   let result
+  //   let artID = '1'
+  //   let orderID = '0'
 
-    beforeEach(async() => {
-      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
-      await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
-      await artFactory.acceptOrder(orderID, { from: artist })
-      await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
-    })
+  //   beforeEach(async() => {
+  //     await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
+  //     await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
+  //     await artFactory.acceptOrder(orderID, { from: artist })
+  //     await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
+  //   })
   
-    describe('success', () => {
-      beforeEach(async() => {
-        await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
-        result = await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
-      })
+  //   describe('success', () => {
+  //     beforeEach(async() => {
+  //       await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
+  //       result = await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
+  //     })
 
-      it('approves marketplace successfully', async () => {
-        const result = await tokens.isApprovedForAll(buyer1, artFactory.address)
-        result.should.equal(true, 'marketplace approval is correct')
-      })
+  //     it('approves marketplace successfully', async () => {
+  //       const result = await tokens.isApprovedForAll(buyer1, artFactory.address)
+  //       result.should.equal(true, 'marketplace approval is correct')
+  //     })
   
-      it('tracks sale by owner', async () => {
-        const salePrice = await artFactory.prices(artID)
-        salePrice.toString().should.equal(SALE_PRICE.toString(), 'prices mapping is correct')
-      })
+  //     it('tracks sale by owner', async () => {
+  //       const salePrice = await artFactory.prices(artID)
+  //       salePrice.toString().should.equal(SALE_PRICE.toString(), 'prices mapping is correct')
+  //     })
       
-      it('emits ArtForSale event', async () => {
-        // TODO: expectEvent(result, 'ArtForSale', { id: artID, price: SALE_PRICE.toString(), owner: buyer1, gen: GEN_1.toString(), tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
-      })
-    })
+  //     it('emits ArtForSale event', async () => {
+  //       // TODO: expectEvent(result, 'ArtForSale', { id: artID, price: SALE_PRICE.toString(), owner: buyer1, gen: GEN_1.toString(), tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
+  //     })
+  //   })
   
-    describe('failure', () => {
-      it('rejects if marketplace not approved', async () => {
-        await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
-      })
+  //   describe('failure', () => {
+  //     it('rejects if marketplace not approved', async () => {
+  //       await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+  //     })
 
-      it('rejects incorrect art id', async () => {
-        await artFactory.putUpForSale(tokens.address, '999', SALE_PRICE, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
-      })
+  //     it('rejects incorrect art id', async () => {
+  //       await artFactory.putUpForSale(tokens.address, '999', SALE_PRICE, { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+  //     })
 
-      it('rejects non owner sender', async () => {
-        await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer2 }).should.be.rejectedWith(EVM_REVERT)
-      })
-    })
-  })
+  //     it('rejects non owner sender', async () => {
+  //       await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer2 }).should.be.rejectedWith(EVM_REVERT)
+  //     })
+  //   })
+  // })
 
-  describe('cancel sale', () => {
-    let result
-    let artID = '1'
-    let orderID = '0'
+  // describe('cancel sale', () => {
+  //   let result
+  //   let artID = '1'
+  //   let orderID = '0'
 
-    beforeEach(async() => {
-      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
-      await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
-      await artFactory.acceptOrder(orderID, { from: artist })
-      await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
-      await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
-      await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
-    })
+  //   beforeEach(async() => {
+  //     await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
+  //     await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
+  //     await artFactory.acceptOrder(orderID, { from: artist })
+  //     await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
+  //     await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
+  //     await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
+  //   })
   
-    describe('success', () => {
-      beforeEach(async() => {
-        result = await artFactory.cancelSale(artID, { from: buyer1 })
-      })
+  //   describe('success', () => {
+  //     beforeEach(async() => {
+  //       result = await artFactory.cancelSale(artID, { from: buyer1 })
+  //     })
   
-      it('tracks sale by owner', async () => {
-        const salePrice = await artFactory.prices(artID)
-        salePrice.toString().should.equal('0', 'prices mapping is correct')
-      })
+  //     it('tracks sale by owner', async () => {
+  //       const salePrice = await artFactory.prices(artID)
+  //       salePrice.toString().should.equal('0', 'prices mapping is correct')
+  //     })
       
-      it('emits SaleCancel event', async () => {
-        // TODO: expectEvent(result, 'SaleCancel', { id: artID, owner: buyer1, gen: GEN_1.toString(), tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
-      })
-    })
+  //     it('emits SaleCancel event', async () => {
+  //       // TODO: expectEvent(result, 'SaleCancel', { id: artID, owner: buyer1, gen: GEN_1.toString(), tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
+  //     })
+  //   })
   
-    describe('failure', () => {
-      it('rejects incorrect art id', async () => {
-        await artFactory.cancelSale('999', { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
-      })
+  //   describe('failure', () => {
+  //     it('rejects incorrect art id', async () => {
+  //       await artFactory.cancelSale('999', { from: buyer1 }).should.be.rejectedWith(EVM_REVERT)
+  //     })
 
-      it('rejects non owner sender', async () => {
-        await artFactory.cancelSale(artID, { from: buyer2 }).should.be.rejectedWith(EVM_REVERT)
-      })
-    })
-  })
+  //     it('rejects non owner sender', async () => {
+  //       await artFactory.cancelSale(artID, { from: buyer2 }).should.be.rejectedWith(EVM_REVERT)
+  //     })
+  //   })
+  // })
 
-  describe('purchase - non artist owner', () => {
-    let result
-    const artID = '1'
-    const orderID = '0'
+  // describe('purchase - non artist owner', () => {
+  //   let result
+  //   const artID = '1'
+  //   const orderID = '0'
 
-    beforeEach(async() => {
-      await tokens.approveMarketplace(artFactory.address, true, { from: artist })
-      await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
-      await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
-      await artFactory.acceptOrder(orderID, { from: artist })
-      await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
-      await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
-      await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
-    })
+  //   beforeEach(async() => {
+  //     await tokens.approveMarketplace(artFactory.address, true, { from: artist })
+  //     await artFactory.createArtGen0(tokens.address, TOKEN_URI, NAME, { from: artist })
+  //     await artFactory.createOrder(PARENT_IDS, NUM_LEGACIES, { from: artist, value: TOTAL_PRICE })
+  //     await artFactory.acceptOrder(orderID, { from: artist })
+  //     await artFactory.createArtFromOrder(tokens.address, orderID, TOKEN_URI, NAME, GEN_1, [0], [], buyer1, { from: artist })
+  //     await tokens.approveMarketplace(artFactory.address, true, { from: buyer1 })
+  //     await artFactory.putUpForSale(tokens.address, artID, SALE_PRICE, { from: buyer1 })
+  //   })
   
-    describe('success', () => {
-      beforeEach(async() => {
-        result = await artFactory.purchase(tokens.address, artID, { from: buyer2, value: TOTAL_PURCHASE_PRICE })
-      })
+  //   describe('success', () => {
+  //     beforeEach(async() => {
+  //       result = await artFactory.purchase(tokens.address, artID, { from: buyer2, value: TOTAL_PURCHASE_PRICE })
+  //     })
 
-      it('tracks purchase', async () => {
+  //     it('tracks purchase', async () => {
 
-        const art = await artFactory.artworks(artID)
-        art.owner.toString().should.equal(buyer2.toString(), 'new owner is correct')
+  //       const art = await artFactory.artworks(artID)
+  //       art.owner.toString().should.equal(buyer2.toString(), 'new owner is correct')
         
-        const price = await artFactory.prices(artID)
-        price.toString().should.equal('0', 'price reset to 0')
+  //       const price = await artFactory.prices(artID)
+  //       price.toString().should.equal('0', 'price reset to 0')
 
-        const sellerBalance = await artFactory.balances(buyer1)
-        sellerBalance.toString().should.equal(SALE_PRICE.toString(), 'seller balance is correct')
-        const artistBalance = await artFactory.balances(artist)
-        artistBalance.toString().should.equal((ORDER_PRICE + ARTIST_CUT).toString(), 'artist balance is correct')
-        const contractBalance = await artFactory.balances(owner)
-        contractBalance.toString().should.equal((CONTRACT_FEE + CONTRACT_CUT).toString(), 'contract balance is correct')
-      })
+  //       const sellerBalance = await artFactory.balances(buyer1)
+  //       sellerBalance.toString().should.equal(SALE_PRICE.toString(), 'seller balance is correct')
+  //       const artistBalance = await artFactory.balances(artist)
+  //       artistBalance.toString().should.equal((ORDER_PRICE + ARTIST_CUT).toString(), 'artist balance is correct')
+  //       const contractBalance = await artFactory.balances(owner)
+  //       contractBalance.toString().should.equal((CONTRACT_FEE + CONTRACT_CUT).toString(), 'contract balance is correct')
+  //     })
 
-      it('emits Purchase event', async () => {
-        // TODO: expectEvent(result, 'Purchase', { id: artID, price: SALE_PRICE.toString(), buyer: buyer2, gen: GEN_1.toString(), tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
-      })
-    })
+  //     it('emits Purchase event', async () => {
+  //       // TODO: expectEvent(result, 'Purchase', { id: artID, price: SALE_PRICE.toString(), buyer: buyer2, gen: GEN_1.toString(), tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
+  //     })
+  //   })
   
-    describe('failure', () => {
-      it('rejects incorrect art id', async () => {
-        await artFactory.purchase(tokens.address, '999', { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
-      })
+  //   describe('failure', () => {
+  //     it('rejects incorrect art id', async () => {
+  //       await artFactory.purchase(tokens.address, '999', { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+  //     })
 
-      it('rejects if value does not match price', async () => {
-        await artFactory.purchase(tokens.address, artID, { from: buyer2, value: '1' }).should.be.rejectedWith(EVM_REVERT)
-      })
+  //     it('rejects if value does not match price', async () => {
+  //       await artFactory.purchase(tokens.address, artID, { from: buyer2, value: '1' }).should.be.rejectedWith(EVM_REVERT)
+  //     })
 
-      // it('rejects if price not above 0', async () => {
-      //   await artFactory.purchase(tokens.address, artID, { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
-      // })
+  //     // it('rejects if price not above 0', async () => {
+  //     //   await artFactory.purchase(tokens.address, artID, { from: buyer2, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+  //     // })
 
-      it('rejects if buyer is seller', async () => {
-        await artFactory.purchase(tokens.address, artID, { from: buyer1, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
-      })
-    })
-  })
+  //     it('rejects if buyer is seller', async () => {
+  //       await artFactory.purchase(tokens.address, artID, { from: buyer1, value: TOTAL_PURCHASE_PRICE }).should.be.rejectedWith(EVM_REVERT)
+  //     })
+  //   })
+  // })
   
   describe('purchase - artist owner', () => {
     let result

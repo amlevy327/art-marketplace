@@ -21,9 +21,9 @@ const showAllArt = (updatedArt) => {
             <td>
               <img src={art.tokenURI} alt="N/A" width="100" height="100"></img>
             </td>
-            <td>{art.gen}</td>
-            <td>{art.parents.join(", ")}</td>
-            <td>{art.siblings.join(", ")}</td>
+            <td className={`text-${art.ownedByCurrentAccount}`}>{art.gen}</td>
+            <td className={`text-${art.ownedByCurrentAccount}`}>{art.parents.join(", ")}</td>
+            <td className={`text-${art.ownedByCurrentAccount}`}>{art.siblings.join(", ")}</td>
           </tr>
         )
       })
@@ -38,11 +38,11 @@ const showAllAcceptedOrders = (allAcceptedOrders) => {
       { allAcceptedOrders.map((order) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
-            <td>{order.id}</td>
-            <td>{order.formattedPrice}</td>
-            <td>{order.gen}</td>
-            <td>{order.parentIDS.join(", ")}</td>
-            <td>{order.numLegacies}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.id}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.formattedPrice}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.gen}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.parentIDS.join(", ")}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.numLegacies}</td>
           </tr>
         )
       })
@@ -57,11 +57,11 @@ const showAllOpenOrders = (allOpenOrders) => {
       { allOpenOrders.map((order) => {
         return(
           <tr className={`order-${order.id}`} key={order.id}>
-            <td>{order.id}</td>
-            <td>{order.formattedPrice}</td>
-            <td>{order.gen}</td>
-            <td>{order.parentIDS.join(", ")}</td>
-            <td>{order.numLegacies}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.id}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.formattedPrice}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.gen}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.parentIDS.join(", ")}</td>
+            <td className={`text-${order.createdByCurrentAccount}`}>{order.numLegacies}</td>
           </tr>
         )
       })

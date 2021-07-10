@@ -11,9 +11,11 @@ import {
   allOrderTypesLoadedSelector,
   accountSelector,
   artFactorySelector,
-  orderCancellingSelector
+  orderCancellingSelector,
+  balanceLoadedSelector,
+  balanceSelector
 } from '../store/selectors'
-import { cancelOpenOrder } from '../store/interactions'
+import { loadBalance, withdrawBalance, cancelOpenOrder } from '../store/interactions'
 
 const showMyArt = (myArt) => {
   return(
@@ -35,7 +37,11 @@ const showMyArt = (myArt) => {
   )
 }
 
-const showMyAcceptedOrders = (myAcceptedOrders) => {
+const showMyAcceptedOrders = (props) => {
+  const {
+    myAcceptedOrders,
+    myArt
+  } = props
   return(
     <tbody>
       { myAcceptedOrders.map((order) => {
@@ -44,7 +50,9 @@ const showMyAcceptedOrders = (myAcceptedOrders) => {
             <td>{order.id}</td>
             <td>{order.formattedPrice}</td>
             <td>{order.gen}</td>
-            <td>{order.parentIDS.join(", ")}</td>
+            {/* <td>{order.parentIDS.join(", ")}</td> */}
+            <td>{showParents(order.parentIDS, myArt)}</td>
+            {/* { showParents(order.parentIDS) } */}
             <td>{order.numLegacies}</td>
           </tr>
         )
@@ -52,6 +60,18 @@ const showMyAcceptedOrders = (myAcceptedOrders) => {
       }
     </tbody>
   )
+}
+
+const showParents = (parentIDS, myArt) => {
+  { parentIDS.map((parent) => {
+    console.log("show parents, parent ID: ", parent)
+    const art = myArt.filter((a) => a.id === parent)
+    console.log("show parents, art: ", art)
+    return(
+      <img src={art.tokenURI} alt="N/A" width="100" height="100"></img>
+    )
+  })
+  }
 }
 
 const showMyOpenOrders = (props) => {
@@ -81,7 +101,40 @@ const showMyOpenOrders = (props) => {
   )
 }
 
+const showBalance = (props) => {
+  const {
+    dispatch,
+    artFactory,
+    account,
+    balance
+  } = props
+  
+  return(
+    <tbody>
+      <tr >
+        <td>{balance}</td>
+        <td
+            className="text-muted cancel-order"
+            onClick={(e) => {
+              console.log('button click: withdraw balance')
+              withdrawBalance(dispatch, artFactory, account)
+            }}
+        >Withdraw</td>
+      </tr>
+    </tbody>
+  )
+}
+
 class ProfileNonArtist extends Component {
+  componentWillMount() {
+    this.loadBlockchainData()
+  }
+  
+  async loadBlockchainData() {
+    const { dispatch, web3, artFactory, account } = this.props
+    await loadBalance(dispatch, web3, artFactory, account)
+  }
+
   render() {
     return (
       <div className="card bg-dark text-white">
@@ -114,7 +167,7 @@ class ProfileNonArtist extends Component {
                     <th>Num Legacies</th>
                   </tr>
                 </thead>
-                { this.props.myOrdersLoaded ? showMyAcceptedOrders(this.props.myAcceptedOrders) : <Spinner type="table"/> }
+                { this.props.myOrdersLoaded ? showMyAcceptedOrders(this.props) : <Spinner type="table"/> }
               </table>
             </Tab>
             <Tab eventKey="open" title="Open Orders" className="bg-dark">
@@ -129,6 +182,16 @@ class ProfileNonArtist extends Component {
                   </tr>
                 </thead>
                 { this.props.myOrdersLoaded ? showMyOpenOrders(this.props) : <Spinner type="table"/> }
+              </table>
+            </Tab>
+            <Tab eventKey="balance" title="Balance" className="bg-dark">
+              <table className="table table-dark table-sm small">
+                <thead>
+                  <tr>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                { this.props.balanceLoaded ? showBalance(this.props) : <Spinner type="table"/> }
               </table>
             </Tab>
           </Tabs>
@@ -151,7 +214,9 @@ function mapStateToProps(state) {
     myAcceptedOrders: myAcceptedOrdersSelector(state),
     myOpenOrders: myOpenOrdersSelector(state),
     account: accountSelector(state),
-    artFactory: artFactorySelector(state)
+    artFactory: artFactorySelector(state),
+    balanceLoaded: balanceLoadedSelector(state),
+    balance: balanceSelector(state),
   }
 }
 

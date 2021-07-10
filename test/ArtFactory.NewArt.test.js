@@ -65,7 +65,6 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
         art.gen.toString().should.equal('0', 'gen is correct')
         art.tokenURI.toString().should.equal(TOKEN_URI.toString(), 'tokenURI is correct')
         art.name.toString().should.equal(NAME.toString(), 'name is correct')
-        art.legacyCreated.should.equal(false, 'legacyCreated is correct')
         //TODO: art.parents.should.equal([], 'parents is correct')
         //TODO: art.siblings.should.equal([], 'siblings is correct')
         art.timestamp.toString().length.should.be.at.least(1, 'timestamp is correct')
@@ -86,7 +85,7 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
       })
       
       it('emits ArtGen0 event', async () => {
-        expectEvent(result, 'NewArt', { id: '0', owner: artist, gen: '0', tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
+        expectEvent(result, 'NewArt', { id: '0', owner: artist, gen: '0', tokenURI: TOKEN_URI, name: NAME, parents: [], siblings: [] })
       })
     })
   
@@ -126,7 +125,6 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
         art.gen.toString().should.equal(GEN_1.toString(), 'gen is correct')
         art.tokenURI.toString().should.equal(TOKEN_URI.toString(), 'tokenURI is correct')
         art.name.toString().should.equal(NAME.toString(), 'name is correct')
-        art.legacyCreated.should.equal(false, 'legacyCreated is correct')
         //TODO: art.parents.should.equal([0], 'parents is correct')
         //TODO: art.siblings.should.equal([], 'siblings is correct')
         art.timestamp.toString().length.should.be.at.least(1, 'timestamp is correct')
@@ -136,9 +134,6 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
 
         const filledOrder = await artFactory.filledOrders(orderID)
         filledOrder.should.equal(true, 'filled orders mapping is correct')
-
-        const parent = await artFactory.artworks('0')
-        parent.legacyCreated.should.equal(true, 'parent legacy created is true')
       })
 
       it('tracks balance transfers', async () => {
@@ -161,7 +156,7 @@ contract('Art - new art', ([owner, artist, buyer1]) => {
       })
       
       it('emits ArtFromOrder event', async () => {
-        // TODO: expectEvent(result, 'ArtFromOrder', { id: '1', owner: artist, gen: '1', tokenURI: TOKEN_URI, name: NAME, legacyCreated: false, parents: [], siblings: [] })
+        // TODO: expectEvent(result, 'ArtFromOrder', { id: '1', owner: artist, gen: '1', tokenURI: TOKEN_URI, name: NAME, parents: [], siblings: [] })
       })
     })
 

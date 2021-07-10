@@ -15,7 +15,11 @@ import {
   updatedMyArtSelector,
   newOrderSelector,
   parentMultiplierPercentageSelector,
-  contractFeePercentageLoadedSelector
+  contractFeePercentageLoadedSelector,
+  minParentsSelector,
+  maxParentsSelector,
+  minLegaciesSelector,
+  maxLegaciesSelector
 } from '../store/selectors'
 import {
   createNewOrder,
@@ -73,8 +77,11 @@ const showNumLegaciesForm = (props) => {
     account,
     baseArtPrice,
     parentMultiplierPercentage,
-    contractFeePercentage
-    // showNewOrderTotalPrice
+    contractFeePercentage,
+    minParents,
+    maxParents,
+    minLegacies,
+    maxLegacies
   } = props
 
   return(
@@ -87,7 +94,17 @@ const showNumLegaciesForm = (props) => {
       const totalPrice = artPrice + contractCut
       console.log('totalPrice: ', totalPrice)
 
-      createNewOrder(dispatch, artFactory, newOrderParentIDS, newOrderNumLegacies, totalPrice, account)
+      if (newOrderParentIDS.length < minParents) {
+        window.alert(`You have selected ${newOrderParentIDS.length} parents. Number of parents must be greater than or equal to ${minParents}.`)
+      } else if (newOrderParentIDS.length > maxParents) {
+        window.alert(`You have selected ${newOrderParentIDS.length} parents. Number of parents must be less than or equal to ${maxParents}.`)
+      } else if (newOrderNumLegacies < minLegacies) {
+        window.alert(`You have iniput ${newOrderNumLegacies} legacies. Number of legacies must be greater than or equal to ${minLegacies}.`)
+      } else if (newOrderNumLegacies > maxLegacies) {
+        window.alert(`You have iniput ${newOrderNumLegacies} legacies. Number of legacies must be less than or equal to ${maxLegacies}.`)
+      } else {
+        createNewOrder(dispatch, artFactory, newOrderParentIDS, newOrderNumLegacies, totalPrice, account)
+      }
     }}>
       <div className="form-group small">
         <label>Num Legacies</label>
@@ -239,8 +256,11 @@ function mapStateToProps(state) {
     myArt: updatedMyArtSelector(state),
     newOrderParentIDS: parentIDS,
     newOrderNumLegacies: numLegacies,
-    //showNewOrderTotalPrice: parentIDS.length > 3 && newOrder.numLegacies
-    showAll: allLoaded && contractFeePercentageLoaded
+    showAll: allLoaded && contractFeePercentageLoaded,
+    minParents: minParentsSelector(state),
+    maxParents: maxParentsSelector(state),
+    minLegacies: minLegaciesSelector(state),
+    maxLegacies: maxLegaciesSelector(state)
   }
 }
 
