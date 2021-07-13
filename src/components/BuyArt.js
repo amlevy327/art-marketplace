@@ -29,6 +29,7 @@ import {
   newOrderParentsChanged,
   newOrderNumLegaciesChanged
 } from '../store/actions'
+import { formatPrice } from '../helpers'
 
 const showArtForSale = (props) => {
   const {
@@ -40,9 +41,9 @@ const showArtForSale = (props) => {
     baseArtPrice,
     contractFeePercentage
   } = props
-  
-  const totalPrice = parseInt(baseArtPrice) + (parseInt(baseArtPrice) * (parseInt(contractFeePercentage) / 100))
-  
+
+  const totalPrice = baseArtPrice + (baseArtPrice * contractFeePercentage / 100)
+
   return(
     <tbody>
       { artForSale.map((art) => {
