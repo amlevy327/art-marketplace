@@ -215,26 +215,6 @@ module.exports = async function(callback) {
     await wait(1)
     console.log('Accepted order: id = 3')
 
-    // create arts from orders
-
-    await artFactory.createArtFromOrder(tokens.address, 5, "https://ipfs.io/ipfs/QmS5DRxNRQv9jMxpzUxcdxzKay6SwUEEsU8JtTuBdFZNi9", "JessieOrder", 1, [11,12], [], buyer1, { from: artist })
-    await wait(1)
-    console.log('Create art from order: id = 15')
-
-    // create art for sale
-    await artFactory.putUpForSale(tokens.address, 13, 30000, { from: buyer1 })
-    await wait(1)
-    console.log('Art id=13 for sale: id = 0')
-
-    await artFactory.putUpForSale(tokens.address, 14, 40000, { from: buyer1 })
-    await wait(1)
-    console.log('Art id=14 for sale: id = 1')
-
-    // cancel sale
-    artFactory.cancelSale(14, { from: buyer1 } )
-    await wait(1)
-    console.log('Sale cancelled art id = 14: id = 0')
-
   } catch (error) {
     console.log(error)
   }
